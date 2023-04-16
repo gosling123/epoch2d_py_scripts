@@ -202,7 +202,7 @@ class dispersion_relations():
 
 
     # Electron Plasma Wave (Warm) 
-    def dispersion_EPW_omega(self, k):
+    def EPW_omega(self, k):
 
         """
         Calculates electron plasma wave frequencies for a 
@@ -226,7 +226,7 @@ class dispersion_relations():
 
 
     # Electromagnetic Wave
-    def dispersion_EM_omega(self, k):
+    def EM_omega(self, k):
 
         """
         Calculates EM wave frequencies for a 
