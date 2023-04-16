@@ -82,7 +82,11 @@ class accumulator_field_fft_plots():
                 self.L_n = L_n
                 # Class to extract density
                 self.density = plasma.density(n_0=self.n_0, L_n=self.L_n)
-
+                
+                
+    ###########################################################################
+    # kx vs omega plot
+    ##########################################################################
 
     def plot_kx_vs_omega(self, t_min, t_max, n_min, n_max, k_range, omega_range):
 
@@ -104,16 +108,10 @@ class accumulator_field_fft_plots():
         
 
         # Create sub-directory to store results in
-        dir_store = f'{self.output_path}/kx_vs_omega/{self.acc_flag}'
         try:
             os.mkdir(f'{self.output_path}/kx_vs_omega/')
         except:
             print('', end='\n')
-        try:
-            os.mkdir(dir_store)
-        except:
-            print('', end='\n')
-
         
         # Required to get correct X range
         self.field_data.setup_variables()
@@ -188,9 +186,9 @@ class accumulator_field_fft_plots():
         time_min = np.round(self.field_data.times.min() / pico, 2)
         time_max = np.round(self.field_data.times.max() / pico, 2)
 
-        plot_name = f'{self.field_name[-2:]}_{time_min}-{time_max}_ps_{n_min}-{n_max}.png'
-        print(f'Saving Figure to {dir_store}/{plot_name}')
-        fig.savefig(f'{dir_store}/{plot_name}')
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{n_min}-{n_max}.png'
+        print(f'Saving Figure to {self.output_path}/kx_vs_omega/{plot_name}')
+        fig.savefig(f'{self.output_path}/kx_vs_omega/{plot_name}')
 
 
     # def plot_ky_vs_omega(self, t_min, time_max, y_min, y_max):
