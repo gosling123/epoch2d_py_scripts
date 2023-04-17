@@ -4,7 +4,7 @@
 # Import libraries
 
 """
-get_accumulator_data.py
+Utils/accumulator_field_spectra.py
 
 File which houses the classes which extracts required
 accumulator data for plotting. Mainly field plots.
@@ -23,7 +23,8 @@ import scipy.constants as const
 from matplotlib.colors import LogNorm
 from matplotlib import cm
 
-import Calculations.plasma_calculator as plasma
+import calculations.plasma_calculator as plasma
+import calculations.laser_calculator as laser
 
 
 def print_progress_bar(index, total, label):
@@ -41,7 +42,7 @@ def print_progress_bar(index, total, label):
     sys.stdout.write(f"[{'=' * int(n_bar * progress):{n_bar}s}] {int(100 * progress)}%  {label}")
     sys.stdout.flush()
 
-class field_data:
+class data:
 
 
     def __init__(self, files, acc_flag, field_name, lambda_0, T_e):
@@ -72,13 +73,17 @@ class field_data:
         # Base plasma/laser parameters required
         self.lambda_0 = lambda_0
         self.T_e = T_e
-        # Basic plasma calculator class
-        self.plasma_params = plasma.plasma_params(lambda_0=self.lambda_0, T_e=self.T_e)
+        
         # Required laser normalisations
-        self.k_0 = self.plasma_params.k_0
-        self.omega_0 = self.plasma_params.omega_0
+        self.k_0 = laser.wavenumber(self.lambda_0)
+        self.omega_0 = laser.omega(self.lambda_0)
         # Field normalisation constant
-        self.field_norm = const.e / (const.m_e * self.omega_0 * const.c)
+        if self.field_name[-2] == 'E':
+            self.field_norm = laser.E_normalisation(self.lambda_0)
+        elif self.field_name[-2] == 'B':
+            self.field_norm = laser.B_normalisation(self.lambda_0)
+        else:
+            sys.exit('ERROR: Naming of field_name is incorrect. Plese use the form "Electric_Field_E{x,y or z}", or similar for magnetic field.')
 
 
     def setup_variables(self):
@@ -113,15 +118,72 @@ class field_data:
 
         del d
 
-
+    ########################################################################################################################
+    # Get X-strip data required for various fft's
+    ########################################################################################################################
     
-    # def load_x_strip_field_data(self, t_min, t_max, y_min, y_max):
+    def load_x_strip_field_data(self, t_min, t_max, y_min, y_max):
 
-    #     self.setup_variables()
+        """
+        Function that loads the required field data for given 
+        y-strip.
 
-    # if self.N_y == 1:
-    #         sys.exit(f'Cannot Perform loading of x-strip data for {self.acc_flag} accumulator')
+        t_min = Minimum time to plot around (units : s)
+        t_max = Maximum time to plot around (units : s)
+        y_min = Minimum y-posistion to plot around (units : m)
+        y_max = Maximum y-posistion to plot around (units : m)
+        """
+        
+        # Get required data to store field data
+        self.setup_variables()
 
+        # Prevention from using the wrong accumulator strip
+        if self.N_y == 1 or self.N_y < self.N_x:
+            print(f'ERROR: Cannot Perform loading of x-strip data for {self.acc_flag} accumulator')
+            sys.exit('Ensure that plotting of kx_vs_omega, x_vs_omega are set to False')
+
+        # Get data for y range
+        y_idx_min = np.where(self.Y_centres - y_min >= 0)[0][0]
+        y_idx_max = np.where(self.Y_centres - y_max >= 0)[0]
+        if len(y_idx_max) == 0:
+            y_idx_max = -1
+        else:
+            y_idx_max = y_idx_max[0]
+        self.Y_centres = self.Y_centres[y_idx_min:y_idx_max]
+        self.N_y = len(self.Y_centres)
+
+        # Get data for time range
+        file_index_min = int(t_min/self.t_end * self.nfiles)
+        file_index_max = int(t_max/self.t_end * self.nfiles)
+        # Set file names to be in range
+        self.files_cut = self.files[file_index_min:file_index_max+1]
+        self.nfiles_cut = len(self.files_cut)
+
+        # Set empty arrays to store times and field data
+        self.times = np.empty(shape = 0)
+        self.field_data = np.empty([0, self.N_y])
+
+        print('Extracting Required Data')
+        # Read through sdf files and store each result
+        for i in range(self.nfiles_cut):
+        
+            d = sdf.read(self.files_cut[i])
+            field_acc = d.__dict__[self.var_name]
+            time_acc = field_acc.grid.data[-1]
+	    
+	        # Store by concatenation to get correct format
+            self.times = np.concatenate((self.times, time_acc))
+            self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,y_idx_min:y_idx_max,0]*self.field_norm))    
+
+        del d
+
+        # Temporal resolution
+        self.N_t = len(self.times)
+        self.dt = self.times[1] - self.times[0]
+
+    ########################################################################################################################
+    # Get Y-strip data required for various fft's
+    ########################################################################################################################
     
     def load_y_strip_field_data(self, t_min, t_max, x_min, x_max):
 
@@ -131,7 +193,7 @@ class field_data:
 
         t_min = Minimum time to plot around (units : s)
         t_max = Maximum time to plot around (units : s)
-        x_min = Minimum x posistion to plot around (units : m)
+        x_min = Minimum x-posistion to plot around (units : m)
         x_max = Maximum x-posistion to plot around (units : m)
         """
         
@@ -139,8 +201,9 @@ class field_data:
         self.setup_variables()
 
         # Prevention from using the wrong accumulator strip
-        if self.N_x == 1:
-            sys.exit(f'Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
+        if self.N_x == 1 or self.N_x < self.N_y:
+            print(f'ERROR: Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
+            sys.exit('Ensure that plotting of ky_vs_omega, omega_vs_y are set to False')
 
         # Get data for X range
         x_idx_min = np.where(self.X_centres - x_min >= 0)[0][0]
@@ -166,7 +229,6 @@ class field_data:
         print('Extracting Required Data')
         # Read through sdf files and store each result
         for i in range(self.nfiles_cut):
-            #print_progress_bar(i+1, self.nfiles_cut, f"Reading {self.files_cut[i]} ({i+1}/{self.nfiles_cut})")
         
             d = sdf.read(self.files_cut[i])
             field_acc = d.__dict__[self.var_name]
@@ -176,14 +238,15 @@ class field_data:
             self.times = np.concatenate((self.times, time_acc))
             self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,0,x_idx_min:x_idx_max]*self.field_norm))    
 
-        print('', end='\n')
         del d
 
         # Temporal resolution
         self.N_t = len(self.times)
         self.dt = self.times[1] - self.times[0]
 
-
+    ########################################################################################################################
+    # kx vs omega fft for plot
+    ########################################################################################################################
 
     def kx_vs_omega_fft(self, t_min, t_max, x_min, x_max):
 
@@ -217,6 +280,39 @@ class field_data:
         field_fft_2d = np.fft.fftshift(np.fft.fft2(window_func * self.field_data))
         self.field_fourier =  (amp_coeff * np.abs(field_fft_2d))**2
 
+    ########################################################################################################################
+    # x vs omega fft for plot
+    ########################################################################################################################
+    
+    def x_vs_omega_fft(self, t_min, t_max, x_min, x_max):
 
+        """
+        Function extracts the required fourier transform to
+        plot x_vs_omega.
 
+        t_min = Minimum time to plot around (units : s)
+        t_max = Maximum time to plot around (units : s)
+        x_min = Minimum x posistion to plot around (units : m)
+        x_max = Maximum x-posistion to plot around (units : m)
+        """
         
+        # Load required data
+        self.load_y_strip_field_data(t_min, t_max, x_min, x_max)
+        
+        # Window function
+        window_func = np.hanning(self.N_t)
+        # Coefficient to normalise amplitudes
+        ampCoeff = 2.0 / (self.N_t * np.mean(window_func))
+        
+        # Frequency space
+        self.omega_space = np.fft.fftshift(np.fft.fftfreq(self.N_t, self.dt / 2.0 / np.pi)) / self.omega_0
+
+        # Find the fft of field at each spatial point and average the fft's 
+        field_fourier = []
+        for i in range(self.N_x):
+            # Find FFT in time of field at x loaction
+            fft_field = np.fft.fftshift(np.fft.fft(window_func * self.field_data[:,i])) 
+            field_fourier.append((ampCoeff * (np.abs(fft_field)))**2)
+
+        # Store as numpy array
+        self.field_fourier = np.array(field_fourier)        

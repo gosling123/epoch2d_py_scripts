@@ -20,8 +20,7 @@ for a chosen accumulator and field
 """
 
 
-import Calculations.plasma_calculator as plasma
-from Plotters.accumulator_field_fft import accumulator_field_fft_plots
+import plotters.accumulator_field_spectra as field_spectra
 import scipy.constants as const
 import numpy as np
 import matplotlib.pyplot as plt
@@ -95,55 +94,80 @@ L_n = 101 * lambda_0
 # Make sure directory exists
 try:
     os.mkdir(output_path)
+    print(f'Created {output_path} directory')
 except:
-    print('', end='\n')
+    print(f'{output_path} directory already exists')
+
+
 
 # Initiate plotting class
-plots = accumulator_field_fft_plots(files, acc_flag, field_name, output_path, \
+plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
                                     lambda_0, T_e_K, density_profile, n_0, L_n)
 
 
 # ------------------------------------------------------------------------------
-kx_vs_omega = True
-
-if acc_flag[0] == 'x':
-    print("ERROR: Plot is for kx-omega spectrum so y diagnostic strip required, seeting plot boolean to False")
-    kx_vs_omega = False
+kx_vs_omega = False
 
 if kx_vs_omega:
-
     # Minimum time/times to plot
-    t_min = 8.0 * pico
+    t_min = 30.0 * pico
     # Maximum time/times to plot
-    t_max = 12.0 * pico
+    t_max = 35.0 * pico
     # Minimum density point to start taking FFT from
-    n_min = 0.15
+    n_min = 0.1
     # Maximum density point to start taking FFT from
-    n_max =  0.25
+    n_max =  0.2
     # Wavenumber range to plot
     k_range = [-2, 2]
+    # Frequency range to plot
+    omega_range = [0.0, 1.2]
+    # Plot SRS curve
+    plot_srs = True
+    # Angle to plot srs curve (angle of sacttred EM wave) in degrees
+    srs_angle = 180
+    # Plot tpd curve
+    plot_tpd = True
+    # Angle to plot TPD curve (centred angle of two LW) in degrees
+    # For angle at maximum linear growth set to 'max_lin_growth'
+    tpd_angle='max_lin_growth'
+
+    # Plot for given value/values
+    if np.isscalar(t_min) and np.isscalar(t_max):
+        print('---------------------------------------------------------------')
+        print(f'Plotting kx_vs_omega for {t_min / pico} - {t_max /pico} ps')
+        plots.plot_kx_vs_omega(t_min, t_max, n_min, n_max, k_range, omega_range, \
+                               plot_srs, srs_angle, plot_tpd, tpd_angle)
+    else:
+        for min_, max_ in zip(t_min, t_max):
+            print('---------------------------------------------------------------')
+            print(f'Plotting kx_vs_omega for {min_ / pico} - {max_ /pico} ps')
+            plots.plot_kx_vs_omega(min_, max_, n_min, n_max, k_range, omega_range, \
+                               plot_srs, srs_angle, plot_tpd, tpd_angle)
+
+
+# ------------------------------------------------------------------------------
+x_vs_omega = True
+
+if x_vs_omega:
+
+    # Minimum time/times to plot
+    t_min = 30.0 * pico
+    # Maximum time/times to plot
+    t_max = 35.0 * pico
+    # Minimum density point to start taking FFT from
+    n_min = 0.1
+    # Maximum density point to start taking FFT from
+    n_max =  0.2
     # Frequency range to plot
     omega_range = [0.0, 1.2]
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
-        print(f'Plotting kx_vs_omega for {t_min / pico} - {t_max /pico} ps')
-        plots.plot_kx_vs_omega(t_min, t_max, n_min, n_max, k_range, omega_range)
+        print(f'Plotting x_vs_omega for {t_min / pico} - {t_max /pico} ps')
+        plots.plot_x_vs_omega(t_min, t_max, n_min, n_max, omega_range)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
-            print(f'Plotting kx_vs_omega for {min_ / pico} - {max_ /pico} ps')
-            plots.plot_kx_vs_omega(min_, max_, n_min, n_max, k_range, omega_range)
-
-
-# ------------------------------------------------------------------------------
-# ky_vs_omega = True
-
-# if acc_flag[0] == 'y' or acc_flag == 'strip_y0':
-#     print("ERROR: Plot is for ky-omega spectrum so x diagnostic strip required, seeting plot boolean to False")
-#     ky_vs_omega = False
-
-# if ky_vs_omega:
-
-
+            print(f'Plotting x_vs_omega for {min_ / pico} - {max_ /pico} ps')
+            plots.plot_x_vs_omega(min_, max_, n_min, n_max, omega_range)
