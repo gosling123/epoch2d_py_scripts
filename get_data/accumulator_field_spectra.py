@@ -22,6 +22,7 @@ import glob
 import scipy.constants as const
 from matplotlib.colors import LogNorm
 from matplotlib import cm
+from math import floor, ceil
 
 import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
@@ -152,9 +153,9 @@ class data:
         self.Y_centres = self.Y_centres[y_idx_min:y_idx_max]
         self.N_y = len(self.Y_centres)
 
-        # Get data for time range
-        file_index_min = int(t_min/self.t_end * self.nfiles)
-        file_index_max = int(t_max/self.t_end * self.nfiles)
+        # Get data close to time range (save's reading all files)
+        file_index_min = floor(t_min/self.t_end * self.nfiles)
+        file_index_max = ceil(t_max/self.t_end * self.nfiles)
         # Set file names to be in range
         self.files_cut = self.files[file_index_min:file_index_max+1]
         self.nfiles_cut = len(self.files_cut)
@@ -176,6 +177,16 @@ class data:
             self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,y_idx_min:y_idx_max,0]*self.field_norm))    
 
         del d
+
+        # Get data for correct time range
+        t_idx_min = np.where(self.times - t_min >= 0)[0][0]
+        t_idx_max = np.where(self.times - t_max >= 0)[0]
+        if len(t_idx_max) == 0:
+            t_idx_max = -1
+        else:
+            t_idx_max = t_idx_max[0]
+        self.times = self.times[t_idx_min:t_idx_max]
+        self.field_data = self.field_data[t_idx_min:t_idx_max,:]
 
         # Temporal resolution
         self.N_t = len(self.times)
@@ -215,9 +226,9 @@ class data:
         self.X_centres = self.X_centres[x_idx_min:x_idx_max]
         self.N_x = len(self.X_centres)
 
-        # Get data for time range
-        file_index_min = int(t_min/self.t_end * self.nfiles)
-        file_index_max = int(t_max/self.t_end * self.nfiles)
+        # Get data close to time range (save's reading all files)
+        file_index_min = floor(t_min/self.t_end * self.nfiles)
+        file_index_max = ceil(t_max/self.t_end * self.nfiles)
         # Set file names to be in range
         self.files_cut = self.files[file_index_min:file_index_max+1]
         self.nfiles_cut = len(self.files_cut)
@@ -239,6 +250,16 @@ class data:
             self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,0,x_idx_min:x_idx_max]*self.field_norm))    
 
         del d
+
+        # Get data for correct time range
+        t_idx_min = np.where(self.times - t_min >= 0)[0][0]
+        t_idx_max = np.where(self.times - t_max >= 0)[0]
+        if len(t_idx_max) == 0:
+            t_idx_max = -1
+        else:
+            t_idx_max = t_idx_max[0]
+        self.times = self.times[t_idx_min:t_idx_max]
+        self.field_data = self.field_data[t_idx_min:t_idx_max,:]
 
         # Temporal resolution
         self.N_t = len(self.times)

@@ -238,7 +238,7 @@ class plots():
         now = datetime.now()
         # dd/mm/YY H:M:S
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        output_file.write(f'\nSaved kx_vs_omega/{plot_name}S at {dt_string}')
+        output_file.write(f'\nSaved kx_vs_omega/{plot_name} at {dt_string}')
         output_file.close()
 
       
@@ -362,7 +362,7 @@ class plots():
         now = datetime.now()
         # dd/mm/YY H:M:S
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        output_file.write(f'\nSaved x_vs_omega/{plot_name}S at {dt_string}')
+        output_file.write(f'\nSaved x_vs_omega/{plot_name} at {dt_string}')
         output_file.close()
 
 

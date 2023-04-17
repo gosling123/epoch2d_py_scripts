@@ -106,13 +106,13 @@ plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_omega = False
+kx_vs_omega = True
 
 if kx_vs_omega:
     # Minimum time/times to plot
-    t_min = 30.0 * pico
+    t_min = 0.0 * pico
     # Maximum time/times to plot
-    t_max = 35.0 * pico
+    t_max = 2.52 * pico
     # Minimum density point to start taking FFT from
     n_min = 0.1
     # Maximum density point to start taking FFT from
@@ -153,7 +153,7 @@ if x_vs_omega:
     # Minimum time/times to plot
     t_min = 30.0 * pico
     # Maximum time/times to plot
-    t_max = 35.0 * pico
+    t_max = 34.3 * pico
     # Minimum density point to start taking FFT from
     n_min = 0.1
     # Maximum density point to start taking FFT from
