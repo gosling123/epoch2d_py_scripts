@@ -65,11 +65,11 @@ fnames = f'{path}/{sdf_prefix}*.sdf'
 files = np.array(sorted(glob.glob(fnames)))
 
 # Flag for which accumulator strip to use
-acc_flag = "y_upper"
+acc_flag = "x_right"
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
-field_name = "Electric_Field_Ex"
+field_name = "Magnetic_Field_Bz"
 
 ################################################################################
 # Define simulation setup
@@ -106,7 +106,7 @@ plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_omega = True
+kx_vs_omega = False
 
 if kx_vs_omega:
     # Minimum time/times to plot
@@ -146,7 +146,7 @@ if kx_vs_omega:
 
 
 # ------------------------------------------------------------------------------
-x_vs_omega = True
+x_vs_omega = False
 
 if x_vs_omega:
 
@@ -171,3 +171,51 @@ if x_vs_omega:
             print('---------------------------------------------------------------')
             print(f'Plotting x_vs_omega for {min_ / pico} - {max_ /pico} ps')
             plots.plot_x_vs_omega(min_, max_, n_min, n_max, omega_range)
+
+
+# ------------------------------------------------------------------------------
+omega_vs_y = True
+
+if omega_vs_y:
+
+    # Minimum time/times to plot
+    t_min = 30.0 * pico
+    # Maximum time/times to plot
+    t_max = 34.3 * pico
+    # Minimum density point to start taking FFT from
+    y_min = -150 * micron
+    # Maximum density point to start taking FFT from
+    y_max =  1300 * micron
+    # Frequency range to plot
+    omega_range = [0.0, 2]
+
+    # Plot for given value/values
+    if np.isscalar(t_min) and np.isscalar(t_max):
+        print('---------------------------------------------------------------')
+        print(f'Plotting omega_vs_y for {t_min / pico} - {t_max /pico} ps')
+        plots.plot_omega_vs_y(t_min, t_max, y_min, y_max, omega_range)
+    else:
+        for min_, max_ in zip(t_min, t_max):
+            print('---------------------------------------------------------------')
+            print(f'Plotting omega_vs_y for {min_ / pico} - {max_ /pico} ps')
+            plots.plot_omega_vs_y(min_, max_, y_min, y_max, omega_range)
+
+
+
+# Minimum time to start taking FFT from
+time_min = 0 * pico
+
+# Minimum time to start taking FFT from
+time_max = 70 * pico
+
+# Number of x or y slices to average over
+space_slices = 10
+
+# Number of time bins
+time_bins = 500
+
+# Size of moving FFT window
+time_window = 1000
+
+# Frequenecy range to plot (units of laser frequency)
+omega_plot = [1.2, 1.9]

@@ -139,9 +139,9 @@ class data:
         self.setup_variables()
 
         # Prevention from using the wrong accumulator strip
-        if self.N_y == 1 or self.N_y < self.N_x:
+        if self.N_y == 1:
             print(f'ERROR: Cannot Perform loading of x-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that plotting of kx_vs_omega, x_vs_omega are set to False')
+            sys.exit('Ensure that plotting of ky_vs_omega, omega_vs_y are set to False')
 
         # Get data for y range
         y_idx_min = np.where(self.Y_centres - y_min >= 0)[0][0]
@@ -212,10 +212,10 @@ class data:
         self.setup_variables()
 
         # Prevention from using the wrong accumulator strip
-        if self.N_x == 1 or self.N_x < self.N_y:
+        if self.N_x == 1:
             print(f'ERROR: Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that plotting of ky_vs_omega, omega_vs_y are set to False')
-
+            sys.exit('Ensure that plotting of kx_vs_omega, x_vs_omega are set to False')
+            
         # Get data for X range
         x_idx_min = np.where(self.X_centres - x_min >= 0)[0][0]
         x_idx_max = np.where(self.X_centres - x_max >= 0)[0]
@@ -277,7 +277,7 @@ class data:
 
         t_min = Minimum time to plot around (units : s)
         t_max = Maximum time to plot around (units : s)
-        x_min = Minimum x posistion to plot around (units : m)
+        x_min = Minimum x-posistion to plot around (units : m)
         x_max = Maximum x-posistion to plot around (units : m)
         """
         
@@ -313,7 +313,7 @@ class data:
 
         t_min = Minimum time to plot around (units : s)
         t_max = Maximum time to plot around (units : s)
-        x_min = Minimum x posistion to plot around (units : m)
+        x_min = Minimum x-posistion to plot around (units : m)
         x_max = Maximum x-posistion to plot around (units : m)
         """
         
@@ -328,6 +328,7 @@ class data:
         # Frequency space
         self.omega_space = np.fft.fftshift(np.fft.fftfreq(self.N_t, self.dt / 2.0 / np.pi)) / self.omega_0
 
+        print('Extracting x-omega fft')
         # Find the fft of field at each spatial point and average the fft's 
         field_fourier = []
         for i in range(self.N_x):
@@ -337,3 +338,59 @@ class data:
 
         # Store as numpy array
         self.field_fourier = np.array(field_fourier)        
+
+
+    ########################################################################################################################
+    # omega vs y fft for plot
+    ########################################################################################################################
+
+    def omega_vs_y_fft(self, t_min, t_max, y_min, y_max):
+
+        """
+        Function extracts the required fourier transform to
+        plot omega_vs_y.
+
+        t_min = Minimum time to plot around (units : s)
+        t_max = Maximum time to plot around (units : s)
+        y_min = Minimum y-posistion to plot around (units : m)
+        y_max = Maximum y-posistion to plot around (units : m)
+        """
+        
+
+        # Load required data
+        self.load_x_strip_field_data(t_min, t_max, y_min, y_max)
+        
+        # Window function
+        window_func = np.hanning(self.N_t)
+        # Coefficient to normalise amplitudes
+        ampCoeff = 2.0 / (self.N_t * np.mean(window_func))
+        
+        # Frequency space
+        self.omega_space = np.fft.fftshift(np.fft.fftfreq(self.N_t, self.dt / 2.0 / np.pi)) / self.omega_0
+
+        print('Extracting y-omega fft')
+        # Find the fft of field at each spatial point and average the fft's 
+        field_fourier = []
+        for i in range(self.N_y):
+            # Find FFT in time of field at x loaction
+            fft_field = np.fft.fftshift(np.fft.fft(window_func * self.field_data[:,i])) 
+            field_fourier.append((ampCoeff * (np.abs(fft_field)))**2)
+
+        # Store as numpy array
+        self.field_fourier = np.array(field_fourier)  
+
+    ########################################################################################################################
+    # omega vs time fft for plot
+    ########################################################################################################################
+
+    def omega_vs_time_fft(self, t_min, t_max, y_min, y_max):
+
+        
+        self.setup_variables()
+
+        if self.N_y == 1:
+            self.load_y_strip_field_data()
+        elif self.N_x == 1:
+            self.load_x_strip_field_data()
+
+    

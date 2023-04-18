@@ -132,18 +132,18 @@ class plots():
         
         # Required to get correct X range
         self.field_data.setup_variables()
-        self.X = self.field_data.X_centres
+        X = self.field_data.X_centres
 
         # Find X locations for given density range
         if self.density_profile == 'exponential':
-            self.X = plasma.x_locs_exponential(n_0=self.n_0, L_n=self.L_n, x = self.X, n_min=n_min, n_max=n_max)
-            self.n_e = plasma.density_exponential(self.n_0, self.L_n, self.X) # For LPI curves
+            X = plasma.x_locs_exponential(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
+            n_e = plasma.density_exponential(self.n_0, self.L_n, X) # For LPI curves
         elif self.density_profile == 'linear':
-            self.X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = self.X, n_min=n_min, n_max=n_max)
-            self.n_e = plasma.density_linear(self.n_0, self.L_n, self.X) # For LPI curves
+            X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
+            n_e = plasma.density_linear(self.n_0, self.L_n, X) # For LPI curves
         
         # Extract required data and perform required FFT process
-        self.field_data.kx_vs_omega_fft(t_min=t_min, t_max=t_max, x_min=self.X.min(), x_max=self.X.max())
+        self.field_data.kx_vs_omega_fft(t_min=t_min, t_max=t_max, x_min=X.min(), x_max=X.max())
 
         # Required data
         field_fourier = self.field_data.field_fourier
@@ -203,7 +203,7 @@ class plots():
         if plot_srs:
             print('Plotting SRS curves')
             # SRS plotting class
-            plots = srs.plots(self.T_e, self.n_e, srs_angle, self.lambda_0)
+            plots = srs.plots(self.T_e, n_e, srs_angle, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
                 plots.kx_vs_omega_EM(ax=plt.gca())
@@ -218,7 +218,7 @@ class plots():
         if plot_tpd:
             print('Plotting TPD curves')
             # SRS plotting class
-            plots = tpd.plots(self.T_e, self.n_e, tpd_angle, self.lambda_0)
+            plots = tpd.plots(self.T_e, n_e, tpd_angle, self.lambda_0)
     
             plots.kx_vs_omega(ax=plt.gca())
         
@@ -278,22 +278,23 @@ class plots():
         
         # Required to get correct X range
         self.field_data.setup_variables()
-        self.X = self.field_data.X_centres
+        X = self.field_data.X_centres
 
         # Find X locations for given density range
         if self.density_profile == 'exponential':
-            self.X = plasma.x_locs_exponential(n_0=self.n_0, L_n=self.L_n, x = self.X, n_min=n_min, n_max=n_max)
-            self.n_e = plasma.density_exponential(self.n_0, self.L_n, self.X) # For LPI curves
+            X = plasma.x_locs_exponential(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
+            n_e = plasma.density_exponential(self.n_0, self.L_n, X) # For LPI curves
         elif self.density_profile == 'linear':
-            self.X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = self.X, n_min=n_min, n_max=n_max)
-            self.n_e = plasma.density_linear(self.n_0, self.L_n, self.X) # For LPI curves
+            X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
+            n_e = plasma.density_linear(self.n_0, self.L_n, X) # For LPI curves
         
         # Extract required data and perform required FFT process
-        self.field_data.x_vs_omega_fft(t_min=t_min, t_max=t_max, x_min=self.X.min(), x_max=self.X.max())
+        self.field_data.x_vs_omega_fft(t_min=t_min, t_max=t_max, x_min=X.min(), x_max=X.max())
 
-        # Required data
+        # Required data cut by x_min x_max
         field_fourier = self.field_data.field_fourier
         omega_space = self.field_data.omega_space
+        X = self.field_data.X_centres
 
         # Plot for given omega region
         idx_omega_min = np.where(omega_space - omega_range[0] >= 0)[0][0]
@@ -319,22 +320,22 @@ class plots():
 
         # Plot image
         fft_plot = ax.imshow(field_fourier.T, cmap=cmap, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
-                              aspect='auto', extent=[self.X.min()/micron, self.X.max()/micron,omega_space.min(),omega_space.max()], origin="lower")
+                              aspect='auto', extent=[X.min()/micron, X.max()/micron,omega_space.min(),omega_space.max()], origin="lower")
 
         # Set plot limits using inputs
         ax.set_ylim(omega_space.min(),omega_space.max())
-        ax.set_xlim(self.X.min()/micron, self.X.max()/micron)
+        ax.set_xlim(X.min()/micron, X.max()/micron)
 
         # Add colour bar
         cbar = plt.colorbar(fft_plot, ax = plt.gca())
         ax.set_ylabel(r"$\omega / \omega_0$")
         # Set the label automatically
         ax.set_xlabel(r'$ X \, (\mu \, m)$')
-        cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(k_x, \omega)$ |$^2$', rotation=270, labelpad=25)
+        cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(x, \omega)$ |$^2$', rotation=270, labelpad=25)
 
 
         # Add density scale on top x axis
-        new_tick_locations = np.linspace(self.X.min()/micron, self.X.max()/micron, 4)
+        new_tick_locations = np.linspace(X.min()/micron, X.max()/micron, 4)
 
         ax2 = ax.twiny()
         ax2.set_xlim(ax.get_xlim())
@@ -370,7 +371,89 @@ class plots():
     # omega vs y plot
     ########################################################################################################################
 
-    # def plot_omega_vs_y(self, t_min, time_max, y_min, y_max):
+    def plot_omega_vs_y(self, t_min, t_max, y_min, y_max, omega_range):
+                        
+        """
+        Function to plot omega_vs_y for chosen time, density. 
+        The plot is also cut to a defined frequency
+        range.
+
+        
+        t_min = Minimum time to plot around (units : s)
+        t_max = Maximum time to plot around (units : s)
+        y_min = Minimum y-posistion to plot around (units : m)
+        y_max = Maximum y-posistion to plot around (units : m)
+        omega_range = Range of frequencies to plot given as a list of the
+                  form [omega_min, omega_max]. (units : omega_0)
+        """
+
+         # Create sub-directory to store results in
+        try:
+            os.mkdir(f'{self.output_path}/omega_vs_y/')
+        except:
+            print('', end='\n')
+        
+        # Extract required data and perform required FFT process
+        self.field_data.omega_vs_y_fft(t_min=t_min, t_max=t_max, y_min=y_min, y_max=y_max)
+
+        # Required data
+        field_fourier = self.field_data.field_fourier
+        omega_space = self.field_data.omega_space
+        Y = self.field_data.Y_centres
+
+        # Plot for given omega region
+        idx_omega_min = np.where(omega_space - omega_range[0] >= 0)[0][0]
+        idx_omega_max = np.where(omega_space - omega_range[1] >= 0)[0]
+
+        if len(idx_omega_max) == 0:
+            print('Max value of omega range set to high, default to maximum value')
+            idx_omega_max = -1
+        else:
+            idx_omega_max = idx_omega_max[0]
+
+        # Slice data into given range
+        field_fourier = field_fourier[:,idx_omega_min:idx_omega_max]
+        omega_space = omega_space[idx_omega_min:idx_omega_max]
+
+        # Begin plotting
+        print('Plotting omega_vs_y')
+        fig, ax = plt.subplots()
+    
+        # Log norm cbar scaling
+        vmax = field_fourier.max()
+        vmin = vmax*1e-5
+
+        # Plot image
+        fft_plot = ax.imshow(field_fourier, cmap=cmap, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
+                              aspect='auto', extent=[omega_space.min(),omega_space.max(),Y.min()/micron, Y.max()/micron], origin="lower")
+
+        # Set plot limits using inputs
+        ax.set_xlim(omega_space.min(),omega_space.max())
+        ax.set_ylim(Y.min()/micron, Y.max()/micron)
+
+        # Add colour bar
+        cbar = plt.colorbar(fft_plot, ax = plt.gca())
+        ax.set_xlabel(r"$\omega / \omega_0$")
+        # Set the label automatically
+        ax.set_ylabel(r'$ Y \, (\mu \, m)$')
+        cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(\omega, y)$ |$^2$', rotation=270, labelpad=25)
+
+        # Save figure
+        time_min = np.round(self.field_data.times.min() / pico, 2)
+        time_max = np.round(self.field_data.times.max() / pico, 2)
+
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps.png'
+        print(f'Saving Figure to {self.output_path}/omega_vs_y/{plot_name}')
+        plt.tight_layout()
+        fig.savefig(f'{self.output_path}/omega_vs_y/{plot_name}')
+
+        # Append to output_fig file to keep track
+        output_file = open(f'{self.output_path}/output_figs.txt',"a")
+        now = datetime.now()
+        # dd/mm/YY H:M:S
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        output_file.write(f'\nSaved omega_vs_y/{plot_name} at {dt_string}')
+        output_file.close()
 
     ########################################################################################################################
     # omega vs time plot
