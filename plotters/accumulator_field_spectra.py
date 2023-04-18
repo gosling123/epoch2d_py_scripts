@@ -151,29 +151,18 @@ class plots():
         omega_space = self.field_data.omega_space 
 
         # Plot for given omega region
-        idx_omega_min = np.where(omega_space - omega_range[0] >= 0)[0][0]
-        idx_omega_max = np.where(omega_space - omega_range[1] >= 0)[0]
+        omega_indicies = np.where((omega_space >= omega_range[0]) & (omega_space <= omega_range[-1]))[0]
+        if len(omega_indicies) == 0:
+            sys.exit('ERROR (kx_vs_omega): Inputted omega scale is incorrect. Please ensure it is units of omega_0 (laser) and in range.')
 
-        if len(idx_omega_max) == 0:
-            print('Max value of omega range set to high, default to maximum value')
-            idx_omega_max = -1
-        else:
-            idx_omega_max = idx_omega_max[0]
-
-        # Plot for given k region
-        idx_k_min = np.where(k_space - k_range[0] >= 0)[0][0]
-        idx_k_max = np.where(k_space - k_range[1] >= 0)[0]
-
-        if len(idx_k_max) == 0:
-            print('Max value of k range set to high, default to maximum value')
-            idx_k_max = -1
-        else:
-            idx_k_max = idx_k_max[0]
+        k_indicies = np.where((k_space >= k_range[0]) & (k_space <= k_range[-1]))[0]
+        if len(k_indicies) == 0:
+            sys.exit('ERROR (kx_vs_omega): Inputted wavenumber (kx) scale is incorrect. Please ensure it is units of k_0 (laser) and in range.')
 
         # Slice data into given range
-        field_fourier = field_fourier[idx_omega_min:idx_omega_max, idx_k_min:idx_k_max]
-        omega_space = omega_space[idx_omega_min:idx_omega_max]
-        k_space = k_space[idx_k_min:idx_k_max]
+        field_fourier = field_fourier[omega_indicies[0]:omega_indicies[-1], k_indicies[0]:k_indicies[-1]]
+        omega_space = omega_space[omega_indicies]
+        k_space = k_space[k_indicies]
 
         # Begin plotting
         print('Plotting kx_vs_omega')
@@ -297,18 +286,13 @@ class plots():
         X = self.field_data.X_centres
 
         # Plot for given omega region
-        idx_omega_min = np.where(omega_space - omega_range[0] >= 0)[0][0]
-        idx_omega_max = np.where(omega_space - omega_range[1] >= 0)[0]
-
-        if len(idx_omega_max) == 0:
-            print('Max value of omega range set to high, default to maximum value')
-            idx_omega_max = -1
-        else:
-            idx_omega_max = idx_omega_max[0]
+        omega_indicies = np.where((omega_space >= omega_range[0]) & (omega_space <= omega_range[-1]))[0]
+        if len(omega_indicies) == 0:
+            sys.exit('ERROR (x_vs_omega): Inputted omega scale is incorrect. Please ensure it is units of omega_0 (laser) and in range.')
 
         # Slice data into given range
-        field_fourier = field_fourier[:,idx_omega_min:idx_omega_max]
-        omega_space = omega_space[idx_omega_min:idx_omega_max]
+        field_fourier = field_fourier[:,omega_indicies]
+        omega_space = omega_space[omega_indicies]
 
         # Begin plotting
         print('Plotting x_vs_omega')
@@ -401,19 +385,13 @@ class plots():
         omega_space = self.field_data.omega_space
         Y = self.field_data.Y_centres
 
-        # Plot for given omega region
-        idx_omega_min = np.where(omega_space - omega_range[0] >= 0)[0][0]
-        idx_omega_max = np.where(omega_space - omega_range[1] >= 0)[0]
-
-        if len(idx_omega_max) == 0:
-            print('Max value of omega range set to high, default to maximum value')
-            idx_omega_max = -1
-        else:
-            idx_omega_max = idx_omega_max[0]
+        omega_indicies = np.where((omega_space >= omega_range[0]) & (omega_space <= omega_range[-1]))[0]
+        if len(omega_indicies) == 0:
+            sys.exit('ERROR (omega_vs_y): Inputted omega scale is incorrect. Please ensure it is units of omega_0 (laser) and in range.')
 
         # Slice data into given range
-        field_fourier = field_fourier[:,idx_omega_min:idx_omega_max]
-        omega_space = omega_space[idx_omega_min:idx_omega_max]
+        field_fourier = field_fourier[:,omega_indicies]
+        omega_space = omega_space[omega_indicies]
 
         # Begin plotting
         print('Plotting omega_vs_y')
@@ -459,8 +437,58 @@ class plots():
     # omega vs time plot
     ########################################################################################################################
 
-    # def plot_omega_vs_time(self, t_min, time_max):
+    def plot_omega_vs_time(self, t_min, t_max, space_slices, t_bins, t_window, omega_range):
+
+        # Create sub-directory to store results in
+        try:
+            os.mkdir(f'{self.output_path}/omega_vs_time/')
+        except:
+            print('', end='\n')
+
+    
+        # Extract required data and perform required STFT process
+        self.field_data.omega_vs_time_stft(t_min=t_min, t_max=t_max, space_slices=space_slices, \
+                                       t_bins=t_bins, t_window=t_window, omega_range=omega_range)
+
+        # Required data
+        field_fourier = self.field_data.field_fourier
+        omega_space = self.field_data.omega_space
+        time_data = self.field_data.time_data / pico
+
+        # Plot STFT
+        fig, ax = plt.subplots()
+
+        vmax = field_fourier.max()
+        vmin = vmax*1e-2
+
+        fft_plot = ax.imshow(field_fourier, cmap=cm.jet, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
+                             aspect='auto', extent=[omega_space.min(), omega_space.max(),time_data.min(),time_data.max()], origin="lower")
 
 
+        # Colour bar to get current axis
+        cbar = plt.colorbar(fft_plot, ax = plt.gca())
 
+        ax.set_xlabel(r"$\omega / \omega_0$")
+        ax.set_ylabel('Time (ps)')
+        ax.set_xlim(omega_space.min(), omega_space.max())
+        ax.set_ylim(time_data.min(),time_data.max())
 
+        cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(\omega, t)$ |$^2$', rotation=270, labelpad=25)
+
+        
+        # Save figure
+        time_min = np.round(time_data.min(), 2)
+        time_max = np.round(time_data.max(), 2)
+
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{omega_range[0]}-{omega_range[-1]}_omega.png'
+        print(f'Saving Figure to {self.output_path}/omega_vs_time/{plot_name}')
+        plt.tight_layout()
+        fig.savefig(f'{self.output_path}/omega_vs_time/{plot_name}')
+
+        # Append to output_fig file to keep track
+        output_file = open(f'{self.output_path}/output_figs.txt',"a")
+        now = datetime.now()
+        # dd/mm/YY H:M:S
+        dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+        output_file.write(f'\nSaved omega_vs_time/{plot_name} at {dt_string}')
+        output_file.close()

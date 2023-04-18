@@ -174,7 +174,7 @@ if x_vs_omega:
 
 
 # ------------------------------------------------------------------------------
-omega_vs_y = True
+omega_vs_y = False
 
 if omega_vs_y:
 
@@ -201,21 +201,32 @@ if omega_vs_y:
             plots.plot_omega_vs_y(min_, max_, y_min, y_max, omega_range)
 
 
+# ------------------------------------------------------------------------------
+omega_vs_time = True
 
-# Minimum time to start taking FFT from
-time_min = 0 * pico
+if omega_vs_time:
+    # Minimum time to start taking FFT from
+    t_min = 0 * pico
+    # Maximum time to start taking FFT from
+    t_max = 50 * pico
+    # Number of x or y slices to average over
+    space_slices = 10
+    # Number of time bins
+    t_bins = 500
+    # Size of moving FFT window
+    t_window = 1000
+    # Frequenecy range to plot (units of laser frequency)
+    omega_range = [1.2, 1.9]
 
-# Minimum time to start taking FFT from
-time_max = 70 * pico
+    # Plot for given value/values
+    if np.isscalar(t_min) and np.isscalar(t_max):
+        print('---------------------------------------------------------------')
+        print(f'Plotting omega_vs_time for {t_min / pico} - {t_max /pico} ps')
+        plots.plot_omega_vs_time(t_min, t_max, space_slices, t_bins, t_window, omega_range)
+    else:
+        for min_, max_ in zip(t_min, t_max):
+            print('---------------------------------------------------------------')
+            print(f'Plotting omega_vs_time for {min_ / pico} - {max_ /pico} ps')
+            plots.plot_omega_vs_time(min_, max_, space_slices, t_bins, t_window, omega_range)
 
-# Number of x or y slices to average over
-space_slices = 10
 
-# Number of time bins
-time_bins = 500
-
-# Size of moving FFT window
-time_window = 1000
-
-# Frequenecy range to plot (units of laser frequency)
-omega_plot = [1.2, 1.9]

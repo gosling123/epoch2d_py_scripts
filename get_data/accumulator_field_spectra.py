@@ -123,7 +123,7 @@ class data:
     # Get X-strip data required for various fft's
     ########################################################################################################################
     
-    def load_x_strip_field_data(self, t_min, t_max, y_min, y_max):
+    def load_x_strip_field_data(self, t_min, t_max, y_indicies):
 
         """
         Function that loads the required field data for given 
@@ -131,28 +131,9 @@ class data:
 
         t_min = Minimum time to plot around (units : s)
         t_max = Maximum time to plot around (units : s)
-        y_min = Minimum y-posistion to plot around (units : m)
-        y_max = Maximum y-posistion to plot around (units : m)
+        y_indicies = List of indexs to cut y scale to
         """
         
-        # Get required data to store field data
-        self.setup_variables()
-
-        # Prevention from using the wrong accumulator strip
-        if self.N_y == 1:
-            print(f'ERROR: Cannot Perform loading of x-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that plotting of ky_vs_omega, omega_vs_y are set to False')
-
-        # Get data for y range
-        y_idx_min = np.where(self.Y_centres - y_min >= 0)[0][0]
-        y_idx_max = np.where(self.Y_centres - y_max >= 0)[0]
-        if len(y_idx_max) == 0:
-            y_idx_max = -1
-        else:
-            y_idx_max = y_idx_max[0]
-        self.Y_centres = self.Y_centres[y_idx_min:y_idx_max]
-        self.N_y = len(self.Y_centres)
-
         # Get data close to time range (save's reading all files)
         file_index_min = floor(t_min/self.t_end * self.nfiles)
         file_index_max = ceil(t_max/self.t_end * self.nfiles)
@@ -174,19 +155,16 @@ class data:
 	    
 	        # Store by concatenation to get correct format
             self.times = np.concatenate((self.times, time_acc))
-            self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,y_idx_min:y_idx_max,0]*self.field_norm))    
+            self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,y_indicies,0]*self.field_norm))    
 
         del d
 
         # Get data for correct time range
-        t_idx_min = np.where(self.times - t_min >= 0)[0][0]
-        t_idx_max = np.where(self.times - t_max >= 0)[0]
-        if len(t_idx_max) == 0:
-            t_idx_max = -1
-        else:
-            t_idx_max = t_idx_max[0]
-        self.times = self.times[t_idx_min:t_idx_max]
-        self.field_data = self.field_data[t_idx_min:t_idx_max,:]
+        t_indicies = np.where((self.times >= t_min) & (self.times <= t_max))[0]
+        if len(t_indicies) == 0:
+            sys.exit('ERROR: Inputted timw scale is incorrect. Please ensure it is in seconds and in range.')
+        self.times = self.times[t_indicies]
+        self.field_data = self.field_data[t_indicies,:]
 
         # Temporal resolution
         self.N_t = len(self.times)
@@ -196,7 +174,7 @@ class data:
     # Get Y-strip data required for various fft's
     ########################################################################################################################
     
-    def load_y_strip_field_data(self, t_min, t_max, x_min, x_max):
+    def load_y_strip_field_data(self, t_min, t_max, x_indicies):
 
         """
         Function that loads the required field data for given 
@@ -204,28 +182,9 @@ class data:
 
         t_min = Minimum time to plot around (units : s)
         t_max = Maximum time to plot around (units : s)
-        x_min = Minimum x-posistion to plot around (units : m)
-        x_max = Maximum x-posistion to plot around (units : m)
+        x_indicies = List of indexs to cut x scale to
         """
         
-        # Get required data to store field data
-        self.setup_variables()
-
-        # Prevention from using the wrong accumulator strip
-        if self.N_x == 1:
-            print(f'ERROR: Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that plotting of kx_vs_omega, x_vs_omega are set to False')
-            
-        # Get data for X range
-        x_idx_min = np.where(self.X_centres - x_min >= 0)[0][0]
-        x_idx_max = np.where(self.X_centres - x_max >= 0)[0]
-        if len(x_idx_max) == 0:
-            x_idx_max = -1
-        else:
-            x_idx_max = x_idx_max[0]
-        self.X_centres = self.X_centres[x_idx_min:x_idx_max]
-        self.N_x = len(self.X_centres)
-
         # Get data close to time range (save's reading all files)
         file_index_min = floor(t_min/self.t_end * self.nfiles)
         file_index_max = ceil(t_max/self.t_end * self.nfiles)
@@ -247,19 +206,16 @@ class data:
 	    
 	        # Store by concatenation to get correct format
             self.times = np.concatenate((self.times, time_acc))
-            self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,0,x_idx_min:x_idx_max]*self.field_norm))    
+            self.field_data = np.concatenate((self.field_data, field_acc.data.T[:,0,x_indicies]*self.field_norm))    
 
         del d
 
         # Get data for correct time range
-        t_idx_min = np.where(self.times - t_min >= 0)[0][0]
-        t_idx_max = np.where(self.times - t_max >= 0)[0]
-        if len(t_idx_max) == 0:
-            t_idx_max = -1
-        else:
-            t_idx_max = t_idx_max[0]
-        self.times = self.times[t_idx_min:t_idx_max]
-        self.field_data = self.field_data[t_idx_min:t_idx_max,:]
+        t_indicies = np.where((self.times >= t_min) & (self.times <= t_max))[0]
+        if len(t_indicies) == 0:
+            sys.exit('ERROR: Inputted timw scale is incorrect. Please ensure it is in seconds and in range.')
+        self.times = self.times[t_indicies]
+        self.field_data = self.field_data[t_indicies,:]
 
         # Temporal resolution
         self.N_t = len(self.times)
@@ -280,9 +236,23 @@ class data:
         x_min = Minimum x-posistion to plot around (units : m)
         x_max = Maximum x-posistion to plot around (units : m)
         """
+
+        # Get required data to store field data
+        self.setup_variables()
+
+        # Prevention from using the wrong accumulator strip
+        if self.N_x == 1:
+            print(f'ERROR (kx_vs_omega): Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
+            sys.exit('Ensure that kx_vs_omega is to False')
+            
+        x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
+        if len(x_indicies) == 0:
+            sys.exit('ERROR (kx_vs_omega): Inputted x scale is incorrect. Please ensure it is in metres and in range.')
+        self.X_centres = self.X_centres[x_indicies]
+        self.N_x = len(self.X_centres)
         
         # Load required data
-        self.load_y_strip_field_data(t_min, t_max, x_min, x_max)
+        self.load_y_strip_field_data(t_min, t_max, x_indicies)
         
         # 2D window
         # Apply windowing to FFT (hanning usually the best)
@@ -316,10 +286,24 @@ class data:
         x_min = Minimum x-posistion to plot around (units : m)
         x_max = Maximum x-posistion to plot around (units : m)
         """
+
+        # Get required data to store field data
+        self.setup_variables()
+
+        # Prevention from using the wrong accumulator strip
+        if self.N_x == 1:
+            print(f'ERROR (x_vs_omega): Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
+            sys.exit('Ensure that x_vs_omega is set to False')
+            
+        x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
+        if len(x_indicies) == 0:
+            sys.exit('ERROR (x_vs_omega): Inputted x scale is incorrect. Please ensure it is in metres and in range.')
+        self.X_centres = self.X_centres[x_indicies]
+        self.N_x = len(self.X_centres)
         
         # Load required data
-        self.load_y_strip_field_data(t_min, t_max, x_min, x_max)
-        
+        self.load_y_strip_field_data(t_min, t_max, x_indicies)
+                
         # Window function
         window_func = np.hanning(self.N_t)
         # Coefficient to normalise amplitudes
@@ -357,8 +341,22 @@ class data:
         """
         
 
+        # Get required data to store field data
+        self.setup_variables()
+
+        # Prevention from using the wrong accumulator strip
+        if self.N_y == 1:
+            print(f'ERROR (omega_vs_y): Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
+            sys.exit('Ensure omega_vs_y is False')
+            
+        y_indicies = np.where((self.Y_centres >= y_min) & (self.Y_centres <= y_max))[0]
+        if len(y_indicies) == 0:
+            sys.exit('ERROR (omega_vs_y): Inputted y scale is incorrect. Please ensure it is in metres and in range.')
+        self.Y_centres = self.Y_centres[y_indicies]
+        self.N_y = len(self.Y_centres)
+        
         # Load required data
-        self.load_x_strip_field_data(t_min, t_max, y_min, y_max)
+        self.load_x_strip_field_data(t_min, t_max, y_indicies)
         
         # Window function
         window_func = np.hanning(self.N_t)
@@ -379,18 +377,70 @@ class data:
         # Store as numpy array
         self.field_fourier = np.array(field_fourier)  
 
-    ########################################################################################################################
-    # omega vs time fft for plot
-    ########################################################################################################################
+    # ########################################################################################################################
+    # # omega vs time stft for plot
+    # ########################################################################################################################
 
-    def omega_vs_time_fft(self, t_min, t_max, y_min, y_max):
+    def omega_vs_time_stft(self, t_min, t_max, space_slices, t_bins, t_window, omega_range):
 
         
         self.setup_variables()
 
         if self.N_y == 1:
-            self.load_y_strip_field_data()
+            # get indicies
+            self.N_x = self.N_x // space_slices
+            x_indicies = np.arange(self.N_x) * space_slices
+            self.X_centres = self.X_centres[x_indicies]
+            self.load_y_strip_field_data(t_min, t_max, x_indicies)
+            self.ncells = self.N_x
         elif self.N_x == 1:
-            self.load_x_strip_field_data()
+            # get indicies
+            self.N_y = self.N_y // space_slices
+            y_indicies = np.arange(self.N_y) * space_slices
+            self.Y_centres = self.Y_centres[y_indicies]
+            self.load_x_strip_field_data(t_min, t_max, y_indicies)
+            self.ncells = self.N_y
 
+        # Window function
+        window_func = np.hanning(t_window)
+        # Coefficient to normalise amplitudes
+        ampCoeff = 2.0 / (t_window * np.mean(window_func))
+        
+        # STFT (Short-Time-Fourier-Transform) Process
+        # Number of time slices for given bin and window size
+        t_hop = int((self.N_t - t_window) / t_bins)
+        
+
+        # Frequencies in each time window
+        omega_space = np.fft.fftshift(np.fft.fftfreq(t_window, self.dt / 2.0 / np.pi)) / self.omega_0
+        # Indices within given freq range
+        omega_indicies = np.where((omega_space >= omega_range[0]) & (omega_space <= omega_range[-1]))[0]
+        if len(omega_indicies) == 0:
+            sys.exit('ERROR (omega_vs_time): Inputted omega scale is incorrect. Please ensure it is units of omega_0 (laser) and in range.')
+        self.omega_space = omega_space[omega_indicies]
+
+        # Find the fft of field at each spatial point and average the fft's 
+        field_fourier = []
+        time_data = []
+
+        for i in range(t_bins):
+            fourier_space_av = 0
+            for j in range(self.ncells):
+                # Get field data in STFT window
+                F = self.field_data[i*t_hop:t_window+i*t_hop ,j]
+                # FFT short time window
+                fft_field = np.fft.fftshift(np.fft.fft(window_func * F))
+                # Get spectral data and sum to find spatial average
+                fourier_space_av = np.add(fourier_space_av, (ampCoeff * (np.abs(fft_field)))**2)
     
+            # Average over space
+            fourier_space_av /= self.ncells
+
+            # FFT in each time window
+            field_fourier.append(fourier_space_av[omega_indicies])
+            time_data.append(self.times[i*t_hop])
+
+
+        # Use numpy arrays for plots
+        self.field_fourier = np.array(field_fourier)
+        self.time_data = np.array(time_data)
