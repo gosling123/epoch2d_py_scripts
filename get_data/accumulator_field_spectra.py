@@ -7,7 +7,7 @@
 accumulator_field_spectra.py
 
 File which houses the classes which extracts required
-accumulator data for plotting. Mainly field plots.
+accumulator data for plotting.
 
 """
 
@@ -16,34 +16,18 @@ import sys
 sys.path.append("..")
 
 import sdf
-import matplotlib.pyplot as plt
 import numpy as np
-import glob
 import scipy.constants as const
-from matplotlib.colors import LogNorm
-from matplotlib import cm
 from math import floor, ceil
 
-import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
 
 
-def print_progress_bar(index, total, label):
-    """
-    prints progress bar for loops.
-
-    :param index : current index of loop
-    :param total : total number of indicies to loop over
-    :param label : print statement next to progress bar
-
-    """
-    n_bar = 80 # Progress bar width
-    progress = index / total
-    sys.stdout.write('\r')
-    sys.stdout.write(f"[{'=' * int(n_bar * progress):{n_bar}s}] {int(100 * progress)}%  {label}")
-    sys.stdout.flush()
-
 class data:
+    """
+    Class that contains required functions to extract data for 
+    accumulator field spectra plots.
+    """
 
 
     def __init__(self, files, acc_flag, field_name, lambda_0, T_e):
@@ -242,7 +226,7 @@ class data:
       
         x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
         if len(x_indicies) == 0:
-            sys.exit('ERROR (kx_vs_omega): Inputted x scale is incorrect. Please ensure it is in metres and in range.')
+            sys.exit('ERROR (kx_vs_omega): Inputted density scale is incorrect. Please ensure it is in units n_cr and in range.')
         self.X_centres = self.X_centres[x_indicies]
         self.N_x = len(self.X_centres)
         
@@ -287,7 +271,7 @@ class data:
             
         x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
         if len(x_indicies) == 0:
-            sys.exit('ERROR (x_vs_omega): Inputted x scale is incorrect. Please ensure it is in metres and in range.')
+            sys.exit('ERROR (x_vs_omega): Inputted density scale is incorrect. Please ensure it is in units n_cr and in range.')
         self.X_centres = self.X_centres[x_indicies]
         self.N_x = len(self.X_centres)
         
@@ -371,9 +355,21 @@ class data:
     # # omega vs time stft for plot
     # ########################################################################################################################
 
-    def omega_vs_time_stft(self, t_min, t_max, space_slices, t_bins, t_window, omega_range):
+    def omega_vs_time_stft(self, t_min, t_max, space_slices, t_bins,\
+                           t_window, omega_range):
 
-        
+        """
+        Function to extract the short-time-fourier-transform (STFT)
+        for the omega_vs_time plot.
+
+        t_min = Minimum time to plot around (units : s)
+        t_max = Maximum time to plot around (units : s)
+        space_slices = Sets number of spatial cells to use (e.g if = 5 it is every other 5)
+        t_bins = Intger number of discrete time points for STFT
+        t_window = Intger number setting size of STFT window
+        omega_range = Range of frequencies to plot given as a list of the
+                  form [omega_min, omega_max]. (units : omega_0)
+        """
         self.setup_variables()
 
         if self.N_y == 1:

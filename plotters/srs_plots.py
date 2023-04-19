@@ -27,42 +27,40 @@ epw_colour = 'red'
 
 class plots:
 
-    def __init__(self, T_e, n_e, theta, lambda_0):
+    def __init__(self, T_e, lambda_0):
 
         self.T_e = T_e
-        self.n_e = n_e
-        self.theta = theta
         self.lambda_0 = lambda_0
 
         self.v_th = plasma.electron_thermal_speed(self.T_e)
 
-    def kx_vs_omega_EPW(self, ax):
+    def kx_vs_omega_EPW(self, n_e, theta, ax):
 
         # Get wavenumbers and frequencies
-        k_epw = srs.srs_EPW_k_x(self.v_th, self.n_e, self.theta, self.lambda_0)
-        omega_epw = srs.srs_omega_EPW(self.n_e, self.T_e, self.theta, self.lambda_0)
+        k_epw = srs.srs_EPW_k_x(self.v_th, n_e, theta, self.lambda_0)
+        omega_epw = srs.srs_omega_EPW(n_e, self.T_e, theta, self.lambda_0)
         # Plot
         ax.plot(k_epw, omega_epw, c=epw_colour, label = 'SRS EPW')    
 
-    def kx_vs_omega_EM(self, ax):   
+    def kx_vs_omega_EM(self, n_e, theta,  ax):   
         
         # Get wavenumbers and frequencies
-        k_em = srs.srs_EM_k_x(self.v_th, self.n_e, self.theta, self.lambda_0) 
-        omega_em = srs.srs_omega_EM(self.n_e, self.T_e, self.theta, self.lambda_0)
+        k_em = srs.srs_EM_k_x(self.v_th, n_e, theta, self.lambda_0) 
+        omega_em = srs.srs_omega_EM(n_e, self.T_e, theta, self.lambda_0)
         # Plot
         ax.plot(k_em, omega_em, c=em_colour, label = 'SRS EM')
 
-    def x_vs_omega_EPW(self, x, ax):   
+    def x_vs_omega_EPW(self, n_e, theta, x, ax):   
         
         # Getfrequencies
-        omega_epw = srs.srs_omega_EPW(self.n_e, self.T_e, self.theta, self.lambda_0)
+        omega_epw = srs.srs_omega_EPW(n_e, self.T_e, theta, self.lambda_0)
         # Plot
         ax.plot(x, omega_epw, c=epw_colour, label = 'SRS EPW')
 
-    def x_vs_omega_EM(self, x, ax):   
+    def x_vs_omega_EM(self, n_e, theta, x, ax):   
         
         # Getfrequencies
-        omega_em = srs.srs_omega_EM(self.n_e, self.T_e, self.theta, self.lambda_0)
+        omega_em = srs.srs_omega_EM(n_e, self.T_e, theta, self.lambda_0)
         # Plot
         ax.plot(x, omega_em, c=em_colour, label = 'SRS EM')
 
@@ -85,10 +83,10 @@ class plots:
         
         if axis == 'x':
             ax.axhline(omega_min.min(), c=em_colour)
-            ax.axhline(omega_max.max(), c=em_colour, label = f'SRS EM {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axhline(omega_max.max(), c=em_colour, label = f'SRS EM {np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$')
         elif axis == 'y':
             ax.axvline(omega_min.min(), c=em_colour)
-            ax.axvline(omega_max.max(), c=em_colour, label = f'SRS EM {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axvline(omega_max.max(), c=em_colour, label = f'SRS EM {np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$')
 
 
     def omega_EPW(self, axis, n_min, n_max, ax):
@@ -109,8 +107,39 @@ class plots:
         
         if axis == 'x':
             ax.axhline(omega_min.min(), c=epw_colour)
-            ax.axhline(omega_max.max(), c=epw_colour, label = f'SRS EPW {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axhline(omega_max.max(), c=epw_colour, label = f'SRS EPW {np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$')
         elif axis == 'y':
             ax.axvline(omega_min.min(), c=epw_colour)
-            ax.axvline(omega_max.max(), c=epw_colour, label = f'SRS EPW {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axvline(omega_max.max(), c=epw_colour, label = f'SRS EPW {np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$')
 
+
+    def kx_vs_ky_EM(self, n_vals, ax):
+        
+        if np.isscalar(n_vals):
+            k_x, k_y = srs.srs_wns_EM_polar(n_vals, self.v_th, self.lambda_0,\
+                                                       angle_min = 0, angle_max = 360)
+            ax.plot(k_x, k_y, c=em_colour, label = f'SRS EM n_e = {np.round(n_vals,2)}' + r' $n_{cr}$')
+        else:
+            for i in range(len(n_vals)):
+                k_x, k_y = srs.srs_wns_EM_polar(n_vals[i], self.v_th, self.lambda_0,\
+                                                           angle_min = 0, angle_max = 360)
+                if i == 0:
+                    ax.plot(k_x, k_y, c=em_colour, label = f'SRS EM n_e = {np.round(np.array(n_vals).min(),2)} - {np.round(np.array(n_vals).max(),2)} ' + r' $n_{cr}$')
+                else:
+                    ax.plot(k_x, k_y, c=em_colour)
+
+
+    def kx_vs_ky_EPW(self, n_vals, ax):
+        
+        if np.isscalar(n_vals):
+            k_x, k_y = srs.srs_wns_EPW_polar(n_vals, self.v_th, self.lambda_0,\
+                                                        angle_min = 0, angle_max = 360)
+            ax.plot(k_x, k_y, c=epw_colour, label = f'SRS EPW n_e = {np.round(n_vals,2)}' + r' $n_{cr}$')
+        else:
+            for i in range(len(n_vals)):
+                k_x, k_y = srs.srs_wns_EPW_polar(n_vals[i], self.v_th, self.lambda_0,\
+                                                            angle_min = 0, angle_max = 360)
+                if i == 0:
+                    ax.plot(k_x, k_y, c=epw_colour, label = f'SRS EPW n_e = {np.round(np.array(n_vals).min(),2)} - {np.round(np.array(n_vals).max(),2)} ' + r' $n_{cr}$')
+                else:
+                    ax.plot(k_x, k_y, c=epw_colour)

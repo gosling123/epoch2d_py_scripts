@@ -28,11 +28,9 @@ from datetime import datetime
 
 import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
-import plotters.srs_plots as srs
-import plotters.tpd_plots as tpd
+from plotters import srs_plots as srs
+from plotters import tpd_plots as tpd
 import get_data.accumulator_field_spectra as field_spectra
-
-
 
 # Colour map style
 cmap = cm.jet
@@ -47,48 +45,49 @@ keV_to_K = (const.e*1e3)/const.k
 
 class plots():
 
-    """ Class that houses fft plotting routines for accumulated field data"""
+    """ Class that houses fft plotting routines for accumulated field spectra data"""
 
     def __init__(self, files, acc_flag, field_name, output_path, \
                 lambda_0, T_e, density_profile, n_0, L_n):
-
-                """
-                Class constructor function
-
-                files = Organised list of required files to read
-                acc_flag = Flag for which accumulator strip to use
-                field_name = Particular field to take fft of. Read from sdf file directory with naming style
-                             "Electric_Field_E{x,y or z}", and similar for magnetic field.
-                output_path = Directory to store figures in
-                lambda_0 = Vacuum laser wavelength (units : m)
-                T_e = Electron temperature (units : K)
-                density_profile = String which sets type of density profile.
-                                  Either 'exponential' or 'linear'.
-                n_0 = Number density at x = 0 (or x_min) (units : n_cr)
-                L_n = Density scale length (units : m)
-                """
-
-                # File reading setup
-                self.files = files
-                self.nfile = len(files)
-                self.field_name = field_name
-                self.acc_flag = acc_flag
-                self.output_path = output_path
-
-                # Base plasma/laser parameters required
-                self.lambda_0 = lambda_0
-                self.T_e = T_e
-
-                # Thermal speed for LPI curves
-                self.v_th = plasma.electron_thermal_speed(self.T_e)
-
-                # Class to extract accumulator data
-                self.field_data = field_spectra.data(files=self.files, acc_flag=self.acc_flag, field_name=self.field_name, lambda_0=self.lambda_0, T_e = self.T_e)
+            
                 
-                # Variables to define density
-                self.density_profile = density_profile
-                self.n_0 = n_0
-                self.L_n = L_n
+        """
+        Class constructor function
+
+        files = Organised list of required files to read
+        acc_flag = Flag for which accumulator strip to use
+        field_name = Particular field to take fft of. Read from sdf file directory with naming style
+                     "Electric_Field_E{x,y or z}", and similar for magnetic field.
+        output_path = Directory to store figures in
+        lambda_0 = Vacuum laser wavelength (units : m)
+        T_e = Electron temperature (units : K)
+        density_profile = String which sets type of density profile.
+                          Either 'exponential' or 'linear'.
+        n_0 = Number density at x = 0 (or x_min) (units : n_cr)
+        L_n = Density scale length (units : m)
+        """
+
+        # File reading setup
+        self.files = files
+        self.nfile = len(files)
+        self.field_name = field_name
+        self.acc_flag = acc_flag
+        self.output_path = output_path
+
+        # Base plasma/laser parameters required
+        self.lambda_0 = lambda_0
+        self.T_e = T_e
+
+        # Thermal speed for LPI curves
+        self.v_th = plasma.electron_thermal_speed(self.T_e)
+
+        # Class to extract accumulator data
+        self.field_data = field_spectra.data(files=self.files, acc_flag=self.acc_flag, field_name=self.field_name, lambda_0=self.lambda_0, T_e = self.T_e)
+                
+        # Variables to define density
+        self.density_profile = density_profile
+        self.n_0 = n_0
+        self.L_n = L_n
                 
                 
     ########################################################################################################################
@@ -197,13 +196,13 @@ class plots():
         if plot_srs:
             print('Plotting SRS curves')
             # SRS plotting class
-            plots = srs.plots(self.T_e, n_e, srs_angle, self.lambda_0)
+            plots = srs.plots(self.T_e, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
-                plots.kx_vs_omega_EM(ax=plt.gca())
+                plots.kx_vs_omega_EM(n_e=n_e, theta=srs_angle, ax=plt.gca())
             else:
-                plots.kx_vs_omega_EM(ax=plt.gca())
-                plots.kx_vs_omega_EPW(ax=plt.gca())
+                plots.kx_vs_omega_EM(n_e=n_e, theta=srs_angle, ax=plt.gca())
+                plots.kx_vs_omega_EPW(n_e=n_e, theta=srs_angle, ax=plt.gca())
        
         if self.field_name[-2:] == 'Bz':
             # Again, don't plot EPW for pure EM componant
@@ -212,9 +211,9 @@ class plots():
         if plot_tpd:
             print('Plotting TPD curves')
             # TPD plotting class
-            plots = tpd.plots(self.T_e, n_e, tpd_angle, self.lambda_0)
+            plots = tpd.plots(self.T_e, self.lambda_0)
     
-            plots.kx_vs_omega(ax=plt.gca())
+            plots.kx_vs_omega(n_e=n_e, theta=tpd_angle, ax=plt.gca())
         
         plt.legend()
         
@@ -264,7 +263,7 @@ class plots():
                     For angle corresponding to max lin growth set to 'max_lin_growth'
         """
 
-         # Create sub-directory to store results in
+        # Create sub-directory to store results in
         try:
             os.mkdir(f'{self.output_path}/x_vs_omega/')
         except:
@@ -325,7 +324,7 @@ class plots():
         cbar = plt.colorbar(fft_plot, ax = plt.gca())
         ax.set_ylabel(r"$\omega / \omega_0$")
         # Set the label automatically
-        ax.set_xlabel(r'$ X \, (\mu \, m)$')
+        ax.set_xlabel(r'$ X \, (\mu m)$')
         cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(x, \omega)$ |$^2$', rotation=270, labelpad=25)
 
         # Plot LPI curves:
@@ -333,13 +332,13 @@ class plots():
         if plot_srs:
             print('Plotting SRS curves')
             # SRS plotting class
-            plots = srs.plots(self.T_e, n_e, srs_angle, self.lambda_0)
+            plots = srs.plots(self.T_e, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
-                plots.x_vs_omega_EM(x=X/micron, ax=plt.gca())
+                plots.x_vs_omega_EM(n_e=n_e, theta=srs_angle, x=X/micron, ax=plt.gca())
             else:
-                plots.x_vs_omega_EM(x=X/micron, ax=plt.gca())
-                plots.x_vs_omega_EPW(x=X/micron, ax=plt.gca())
+                plots.x_vs_omega_EM(n_e=n_e, theta=srs_angle, x=X/micron, ax=plt.gca())
+                plots.x_vs_omega_EPW(n_e=n_e, theta=srs_angle, x=X/micron, ax=plt.gca())
        
         if self.field_name[-2:] == 'Bz':
             # Again, don't plot EPW for pure EM componant
@@ -348,9 +347,9 @@ class plots():
         if plot_tpd:
             print('Plotting TPD curves')
             # TPD plotting class
-            plots = tpd.plots(self.T_e, n_e, tpd_angle, self.lambda_0)
+            plots = tpd.plots(self.T_e, self.lambda_0)
     
-            plots.x_vs_omega(x=X/micron, ax=plt.gca())
+            plots.x_vs_omega(n_e=n_e, theta=tpd_angle, x=X/micron, ax=plt.gca())
 
         plt.legend()
         # Add density scale on top x axis
@@ -455,17 +454,15 @@ class plots():
         cbar = plt.colorbar(fft_plot, ax = plt.gca())
         ax.set_xlabel(r"$\omega / \omega_0$")
         # Set the label automatically
-        ax.set_ylabel(r'$ Y \, (\mu \, m)$')
+        ax.set_ylabel(r'$ Y \, (\mu m)$')
         cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(\omega, y)$ |$^2$', rotation=270, labelpad=25)
 
         # Plot LPI bounds:
 
         if plot_srs:
             print('Plotting SRS bounds')
-            n_e = None
-            srs_angle = None
             # SRS plotting class
-            plots = srs.plots(self.T_e, n_e, srs_angle, self.lambda_0)
+            plots = srs.plots(self.T_e, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
                 plots.omega_EM(axis='y', n_min=n_min, n_max=n_max, ax=plt.gca())
@@ -479,10 +476,8 @@ class plots():
         
         if plot_tpd:
             print('Plotting TPD bounds')
-            n_e = None
-            tpd_angle = None
             # TPD plotting class
-            plots = tpd.plots(self.T_e, n_e, tpd_angle, self.lambda_0)
+            plots = tpd.plots(self.T_e, self.lambda_0)
             plots.omega(axis='x', n_min=n_min, n_max=n_max, ax=plt.gca())
 
         plt.legend()
@@ -569,10 +564,8 @@ class plots():
 
         if plot_srs:
             print('Plotting SRS bounds')
-            n_e = None
-            srs_angle = None
             # SRS plotting class
-            plots = srs.plots(self.T_e, n_e, srs_angle, self.lambda_0)
+            plots = srs.plots(self.T_e, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
                 plots.omega_EM(axis='y', n_min=n_min, n_max=n_max, ax=plt.gca())
@@ -586,10 +579,8 @@ class plots():
         
         if plot_tpd:
             print('Plotting TPD bounds')
-            n_e = None
-            tpd_angle = None
             # TPD plotting class
-            plots = tpd.plots(self.T_e, n_e, tpd_angle, self.lambda_0)
+            plots = tpd.plots(self.T_e, self.lambda_0)
             plots.omega(axis='x', n_min=n_min, n_max=n_max, ax=plt.gca())
 
         plt.legend()

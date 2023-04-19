@@ -109,7 +109,7 @@ plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_omega = False
+kx_vs_omega = True
 
 if kx_vs_omega:
     # Minimum time/times to plot (units : s)
@@ -226,7 +226,7 @@ if omega_vs_y:
 
 
 # ------------------------------------------------------------------------------
-omega_vs_time = False
+omega_vs_time = True
 
 if omega_vs_time:
     # Minimum time to start taking FFT from

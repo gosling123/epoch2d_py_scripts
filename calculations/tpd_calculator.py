@@ -10,7 +10,6 @@ to the TPD laser-plasma interaction.
 
 """
 
-import sys
 
 # import libraries
 import numpy as np

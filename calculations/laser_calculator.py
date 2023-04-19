@@ -11,7 +11,6 @@ quantities.
 """
 
 # import libraries
-import numpy as np
 import scipy.constants as const
 
 def omega(lambda_0):
