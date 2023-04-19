@@ -4,7 +4,7 @@
 # Import libraries
 
 """
-Utils/accumulator_field_spectra.py
+accumulator_field_spectra.py
 
 File which houses the classes which extracts required
 accumulator data for plotting. Mainly field plots.
@@ -162,7 +162,7 @@ class data:
         # Get data for correct time range
         t_indicies = np.where((self.times >= t_min) & (self.times <= t_max))[0]
         if len(t_indicies) == 0:
-            sys.exit('ERROR: Inputted timw scale is incorrect. Please ensure it is in seconds and in range.')
+            sys.exit('ERROR: Inputted time scale is incorrect. Please ensure it is in seconds and in range.')
         self.times = self.times[t_indicies]
         self.field_data = self.field_data[t_indicies,:]
 
@@ -213,7 +213,7 @@ class data:
         # Get data for correct time range
         t_indicies = np.where((self.times >= t_min) & (self.times <= t_max))[0]
         if len(t_indicies) == 0:
-            sys.exit('ERROR: Inputted timw scale is incorrect. Please ensure it is in seconds and in range.')
+            sys.exit('ERROR: Inputted time scale is incorrect. Please ensure it is in seconds and in range.')
         self.times = self.times[t_indicies]
         self.field_data = self.field_data[t_indicies,:]
 
@@ -239,12 +239,7 @@ class data:
 
         # Get required data to store field data
         self.setup_variables()
-
-        # Prevention from using the wrong accumulator strip
-        if self.N_x == 1:
-            print(f'ERROR (kx_vs_omega): Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that kx_vs_omega is to False')
-            
+      
         x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
         if len(x_indicies) == 0:
             sys.exit('ERROR (kx_vs_omega): Inputted x scale is incorrect. Please ensure it is in metres and in range.')
@@ -289,11 +284,6 @@ class data:
 
         # Get required data to store field data
         self.setup_variables()
-
-        # Prevention from using the wrong accumulator strip
-        if self.N_x == 1:
-            print(f'ERROR (x_vs_omega): Cannot Perform loading of y-strip data for {self.acc_flag} accumulator')
-            sys.exit('Ensure that x_vs_omega is set to False')
             
         x_indicies = np.where((self.X_centres >= x_min) & (self.X_centres <= x_max))[0]
         if len(x_indicies) == 0:

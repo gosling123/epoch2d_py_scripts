@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-plot_accumulator_field.py
+plot_accumulator_field_spectra.py
 
 Script for plotting various figures that require accumulated field
 data.
@@ -30,7 +30,7 @@ import os
 # Plotting Params
 plt.rcParams["figure.figsize"] = (10,8)
 plt.rcParams["figure.autolayout"] = True
-plt.rcParams['lines.linewidth'] = 2
+plt.rcParams['lines.linewidth'] = 3
 plt.rcParams['axes.labelsize'] = 16
 plt.rcParams['axes.titlesize'] = 16
 plt.rcParams['xtick.labelsize'] = 15
@@ -65,26 +65,29 @@ fnames = f'{path}/{sdf_prefix}*.sdf'
 files = np.array(sorted(glob.glob(fnames)))
 
 # Flag for which accumulator strip to use
-acc_flag = "x_right"
+acc_flag = "y_upper"
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
-field_name = "Magnetic_Field_Bz"
+field_name = "Electric_Field_Ex"
 
 ################################################################################
 # Define simulation setup
 ################################################################################
 
-# Laser Wavelength
+# Laser Wavelength (units : m)
 lambda_0 = 1.314e-6
 
-# Electron Temperature (keV)
+# Electron Temperature (units : keV)
 T_e_keV = 4.3
+# Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
 # Density profile can be 'exponential' or 'linear'
 density_profile = 'exponential'
+# Density at x = 0 (units : n_cr)
 n_0 = 0.03
+# Density scale length (units : m)
 L_n = 101 * lambda_0
 
 ################################################################################
@@ -109,25 +112,25 @@ plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
 kx_vs_omega = False
 
 if kx_vs_omega:
-    # Minimum time/times to plot
+    # Minimum time/times to plot (units : s)
     t_min = 0.0 * pico
-    # Maximum time/times to plot
+    # Maximum time/times to plot (units : s)
     t_max = 2.52 * pico
-    # Minimum density point to start taking FFT from
+    # Minimum density point to start taking FFT from (units : n_cr)
     n_min = 0.1
-    # Maximum density point to start taking FFT from
+    # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.2
     # Wavenumber range to plot
     k_range = [-2, 2]
-    # Frequency range to plot
+    # Frequency range to plot (units : omega_0 (laser))
     omega_range = [0.0, 1.2]
     # Plot SRS curve
     plot_srs = True
-    # Angle to plot srs curve (angle of sacttred EM wave) in degrees
+    # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 180
     # Plot tpd curve
     plot_tpd = True
-    # Angle to plot TPD curve (centred angle of two LW) in degrees
+    # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
     tpd_angle='max_lin_growth'
 
@@ -146,31 +149,42 @@ if kx_vs_omega:
 
 
 # ------------------------------------------------------------------------------
-x_vs_omega = False
+x_vs_omega = True
 
 if x_vs_omega:
 
-    # Minimum time/times to plot
-    t_min = 30.0 * pico
-    # Maximum time/times to plot
-    t_max = 34.3 * pico
-    # Minimum density point to start taking FFT from
-    n_min = 0.1
-    # Maximum density point to start taking FFT from
-    n_max =  0.2
-    # Frequency range to plot
-    omega_range = [0.0, 1.2]
+    # Minimum time/times to plot (units : s)
+    t_min = 0 * pico
+    # Maximum time/times to plot (units : s)
+    t_max = 10 * pico
+    # Minimum density point to start taking FFT from (units : n_cr)
+    n_min = 0.03
+    # Maximum density point to start taking FFT from (units : n_cr)
+    n_max =  1.0
+    # Frequency range to plot (units : omega_0 (laser))
+    omega_range = [0.2, 0.7]
+    # Plot SRS curve
+    plot_srs = True
+    # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
+    srs_angle = 180
+    # Plot tpd curve
+    plot_tpd = True
+    # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
+    # For angle at maximum linear growth set to 'max_lin_growth'
+    tpd_angle='max_lin_growth'
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
         print(f'Plotting x_vs_omega for {t_min / pico} - {t_max /pico} ps')
-        plots.plot_x_vs_omega(t_min, t_max, n_min, n_max, omega_range)
+        plots.plot_x_vs_omega(t_min, t_max, n_min, n_max, omega_range, \
+                               plot_srs, srs_angle, plot_tpd, tpd_angle)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
             print(f'Plotting x_vs_omega for {min_ / pico} - {max_ /pico} ps')
-            plots.plot_x_vs_omega(min_, max_, n_min, n_max, omega_range)
+            plots.plot_x_vs_omega(min_, max_, n_min, n_max, omega_range, \
+                                  plot_srs, srs_angle, plot_tpd, tpd_angle)
 
 
 # ------------------------------------------------------------------------------
@@ -178,31 +192,41 @@ omega_vs_y = False
 
 if omega_vs_y:
 
-    # Minimum time/times to plot
+    # Minimum time/times to plot (units : s)
     t_min = 30.0 * pico
-    # Maximum time/times to plot
+    # Maximum time/times to plot (units : s)
     t_max = 34.3 * pico
-    # Minimum density point to start taking FFT from
+    # Minimum y point to take FFT in (units : m)
     y_min = -150 * micron
-    # Maximum density point to start taking FFT from
+    # Maximum y point to take FFT in (units : m)
     y_max =  1300 * micron
-    # Frequency range to plot
-    omega_range = [0.0, 2]
+    # Frequency range to plot (units : omega_0 (laser))
+    omega_range = [0.4, 0.6]
+    # Plot SRS frequency bounds
+    plot_srs = True
+    # Plot TPD frequency bounds
+    plot_tpd = True
+    # Minimum density for bound (units : n_cr)
+    n_min=0.2
+    # Maximum density for bound (units : n_cr)
+    n_max=0.249
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
         print(f'Plotting omega_vs_y for {t_min / pico} - {t_max /pico} ps')
-        plots.plot_omega_vs_y(t_min, t_max, y_min, y_max, omega_range)
+        plots.plot_omega_vs_y(t_min, t_max, y_min, y_max, omega_range,\
+                              n_min, n_max, plot_srs, plot_tpd)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
             print(f'Plotting omega_vs_y for {min_ / pico} - {max_ /pico} ps')
-            plots.plot_omega_vs_y(min_, max_, y_min, y_max, omega_range)
+            plots.plot_omega_vs_y(min_, max_, y_min, y_max, omega_range,\
+                              n_min, n_max, plot_srs, plot_tpd)
 
 
 # ------------------------------------------------------------------------------
-omega_vs_time = True
+omega_vs_time = False
 
 if omega_vs_time:
     # Minimum time to start taking FFT from
@@ -216,17 +240,27 @@ if omega_vs_time:
     # Size of moving FFT window
     t_window = 1000
     # Frequenecy range to plot (units of laser frequency)
-    omega_range = [1.2, 1.9]
+    omega_range = [0.1, 0.7]
+    # Plot SRS frequency bounds
+    plot_srs = True
+    # Plot TPD frequency bounds
+    plot_tpd = True
+    # Minimum density for bound (units : n_cr)
+    n_min=0.2
+    # Maximum density for bound (units : n_cr)
+    n_max=0.249
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
         print(f'Plotting omega_vs_time for {t_min / pico} - {t_max /pico} ps')
-        plots.plot_omega_vs_time(t_min, t_max, space_slices, t_bins, t_window, omega_range)
+        plots.plot_omega_vs_time(t_min, t_max, space_slices, t_bins, t_window, omega_range,\
+                                  n_min, n_max, plot_srs, plot_tpd)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
             print(f'Plotting omega_vs_time for {min_ / pico} - {max_ /pico} ps')
-            plots.plot_omega_vs_time(min_, max_, space_slices, t_bins, t_window, omega_range)
+            plots.plot_omega_vs_time(min_, max_, space_slices, t_bins, t_window, omega_range,\
+                                     n_min, n_max, plot_srs, plot_tpd)
 
 
