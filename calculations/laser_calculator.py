@@ -12,6 +12,7 @@ quantities.
 
 # import libraries
 import scipy.constants as const
+import numpy as np
 
 def omega(lambda_0):
     """
@@ -30,6 +31,18 @@ def wavenumber(lambda_0):
     lambda_0 = Wavelength (units : m)
     """
     return 2.0 * const.pi / lambda_0
+
+def wavenumber_plasma(lambda_0, n_e):
+    """
+    Calculates laser wavenumber for 
+    given wavelength in a plasma with
+    electron density n_e.
+
+    lambda_0 = Wavelength (units : m)
+    n_e = Electron number density (units : n_cr)
+    """
+    k_0 = wavenumber(lambda_0)
+    return k_0 * np.sqrt(1.0 - n_e)
 
 def E_normalisation(lambda_0):
     """

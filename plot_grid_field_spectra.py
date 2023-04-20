@@ -104,7 +104,7 @@ plots = field_spectra.plots(files, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_ky = True
+kx_vs_ky = False
 
 if kx_vs_ky:
     # Time of grid snapshot (units : s)
@@ -122,9 +122,9 @@ if kx_vs_ky:
     # Densities to plot SRS curves for
     n_srs=[0.1, 0.18]
     # Plot TPD curves
-    plot_tpd=True
+    plot_tpd = True
     # Densities to plot TPD curves for
-    n_tpd=[0.2,0.23]
+    n_tpd = [0.2,0.23]
 
   
     # Plot for given value/values
@@ -150,49 +150,70 @@ if x_vs_ky:
     # Minimum density point to start taking FFT from (units : n_cr)
     n_min = 0.1
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  0.2
+    n_max =  0.25
     # Wavenumber (ky) range to plot
     k_range = [-2, 2]
+    # Plot SRS curve
+    plot_srs = True 
+    # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
+    srs_angle = 60
+    # Plot TPD curve
+    plot_tpd = True
+    # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
+    # For angle at maximum linear growth set to 'max_lin_growth'
+    tpd_angle='max_lin_growth'
 
   
     # Plot for given value/values
     if np.isscalar(snap_time):
         print('---------------------------------------------------------------')
         print(f'Plotting x_vs_ky for {snap_time / pico} ps')
-        plots.plot_x_vs_ky(snap_time, n_min, n_max, k_range)
+        plots.plot_x_vs_ky(snap_time, n_min, n_max, k_range,\
+                           plot_srs, srs_angle, plot_tpd, tpd_angle)
     else:
         for time in snap_time:
             print('---------------------------------------------------------------')
             print(f'Plotting x_vs_ky for {time/ pico} ps')
-            plots.plot_x_vs_ky(time, n_min, n_max, k_range)
+            plots.plot_x_vs_ky(time, n_min, n_max, k_range,\
+                               plot_srs, srs_angle, plot_tpd, tpd_angle)
 
 
 # ------------------------------------------------------------------------------
-x_vs_kx = False
+x_vs_kx = True
 
 if x_vs_kx:
     # Time of grid snapshot (units : s)
     snap_time = 2.0 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.1
+    n_min = 0.03
     # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.25
     # Window size for STFT
-    x_window = 1000
+    x_window = 500
     # Number of discrete spatial bins for STFT
-    x_bins = 500
+    x_bins = 100
     # Wavenumber (ky) range to plot
     k_range = [-2, 2]
-
+    # Plot SRS curve
+    plot_srs = True 
+    # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
+    srs_angle = 210
+    # Plot TPD curve
+    plot_tpd = True
+    # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
+    # For angle at maximum linear growth set to 'max_lin_growth'
+    tpd_angle='max_lin_growth'
 
   
     # Plot for given value/values
     if np.isscalar(snap_time):
         print('---------------------------------------------------------------')
         print(f'Plotting x_vs_kx for {snap_time / pico} ps')
-        plots.plot_x_vs_kx(snap_time, n_min, n_max, x_window, x_bins, k_range)
+        plots.plot_x_vs_kx(snap_time, n_min, n_max, x_window, x_bins, k_range,\
+                           plot_srs, srs_angle, plot_tpd, tpd_angle)
     else:
         for time in snap_time:
             print('---------------------------------------------------------------')
             print(f'Plotting x_vs_kx for {time/ pico} ps')
-            plots.plot_x_vs_kx(time, n_min, n_max, x_window, x_bins, k_range)
+            plots.plot_x_vs_kx(time, n_min, n_max, x_window, x_bins, k_range,\
+                               plot_srs, srs_angle, plot_tpd, tpd_angle)

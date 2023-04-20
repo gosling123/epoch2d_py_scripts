@@ -47,7 +47,7 @@ def tpd_k_y(v_th, n_e, angle, lambda_0):
 
     # Laser 
     k_0 = laser.wavenumber(lambda_0)
-    k_L = k_0 * np.sqrt(1.0 - n_e)
+    k_L = laser.wavenumber_plasma(lambda_0, n_e)
     omega_0 = laser.omega(lambda_0)
     # Magnitude of wavevector for given angle (normalised by k_0)
     mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - n_e) - 0.25 * k_L**2 * const.c**2 / omega_0**2
@@ -109,7 +109,7 @@ def tpd_wns_polar(n_e, v_th, lambda_0):
 
     # Laser 
     k_0 = laser.wavenumber(lambda_0)
-    k_L =  np.sqrt(1.0 - n_e)
+    k_L =  laser.wavenumber_plasma(lambda_0, n_e) / k_0
     omega_0 = laser.omega(lambda_0)
 
     # Angle between k - k0/2 and k0
@@ -138,8 +138,10 @@ def tpd_wns_pairs(v_th, n_e, angle, lambda_0, componants = 'both'):
     lambda_0 = Vacuum laser wavelength (units : m)
     """
 
+    # Vacuum wavenumber
+    k_0 = laser.wavenumber(lambda_0)
     # Laser wavenumber at n_e
-    k_L = np.sqrt(1.0 - n_e)
+    k_L = laser.wavenumber_plasma(lambda_0, n_e) / k_0
     # Allowed Langmuir wave numbers from TPD matching
     k1_x = tpd_k_x(v_th, n_e, angle, lambda_0)
     k1_y = tpd_k_y(v_th, n_e, angle, lambda_0)
@@ -204,7 +206,7 @@ def tpd_omegas(n_e, T_e, angle, lambda_0):
 # Linear growth
 ################################################################################
 
-def tpd_max_lin_growth(n_e):
+def tpd_max_lin_growth(n_e, lambda_0):
 
     """
     Returns the TPD wavenumbers that correspond to maximal linear growth.
@@ -212,9 +214,10 @@ def tpd_max_lin_growth(n_e):
 
     n_e = Electron number density (units : n_cr)
     """
-
+    # Vacuum wavenumber
+    k_0 = laser.wavenumber(lambda_0)
     # Laser wavenumber in plasma
-    k_L = np.sqrt(1.0 - n_e) 
+    k_L = laser.wavenumber_plasma(lambda_0, n_e) / k_0
     # k_x range to plot over
     k_x = np.linspace(-3.0, 3.0, 5000)
     x_part = (k_x - 0.5 * k_L)**2
@@ -293,7 +296,7 @@ def tpd_angle_max_growth(n_e, v_th, lambda_0):
 
     # Laser 
     k_0 = laser.wavenumber(lambda_0)
-    k_L = k_0 * np.sqrt(1.0 - n_e)
+    k_L = laser.wavenumber_plasma(lambda_0, n_e)
     omega_0 = laser.omega(lambda_0)
     # Check if circle approximation is viable 
     thermal_factor = 1.0 / (1.0 - 3.0 * v_th**2 / omega_0**2 * k_L**2) 

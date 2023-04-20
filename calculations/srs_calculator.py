@@ -47,7 +47,7 @@ def srs_wns_EM(n_e, v_th, lambda_0, angle):
     # Frequency rads^-1
     omega_0 = laser.omega(lambda_0)
     # Laser wavenumber 
-    k_L = np.sqrt(1.0 - n_e) * k_0
+    k_L = laser.wavenumber_plasma(lambda_0, n_e)
     
     # Polynomial coefficients for |k_s|
     coeffs = np.zeros(5)
@@ -172,6 +172,9 @@ def srs_wns_EPW(n_e, v_th, lambda_0, angle):
     lambda_0 = Vacuum laser wavelength (units : m)
     angle = Angle between k_0 and k_s (units : degrees)
     """
+    
+    # Vacuum wavenumber
+    k_0 = laser.wavenumber(lambda_0)
 
     # Find the scattered EM wave wavenumbers
     ks_x, ks_y = srs_wns_EM(n_e, v_th, lambda_0, angle)
@@ -179,7 +182,7 @@ def srs_wns_EPW(n_e, v_th, lambda_0, angle):
     # Employ the use of the SRS matching conditions
 
     # Laser wavenumber (normalised by k_0)
-    k_L = np.sqrt(1.0 - n_e) 
+    k_L = laser.wavenumber_plasma(lambda_0, n_e) / k_0
 
     # For x : k_L = ks_x + kepw_x 
     k_x = k_L - ks_x

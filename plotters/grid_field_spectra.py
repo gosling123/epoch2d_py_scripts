@@ -198,7 +198,8 @@ class plots():
     # x vs ky plot
     ########################################################################################################################
 
-    def plot_x_vs_ky(self, snap_time, n_min, n_max, k_range):
+    def plot_x_vs_ky(self, snap_time, n_min, n_max, k_range,\
+                     plot_srs=False, srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
 
         
         # Create sub-directory to store results in
@@ -256,6 +257,30 @@ class plots():
         ax.set_xlim(X.min()/micron, X.max()/micron)
         ax.set_ylim(k_y.min(), k_y.max())
 
+        # Plot LPI curves
+        if plot_srs:
+            print('Plotting SRS curves')
+            # SRS plotting class
+            plots = srs.plots(self.T_e, self.lambda_0)
+            if self.field_name[-2:] == 'Bz':
+                # Don't plot EPW for pure EM componant
+                plots.x_vs_ky_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+            else:
+                plots.x_vs_ky_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+                plots.x_vs_ky_EPW(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+
+        if self.field_name[-2:] == 'Bz':
+            # Again, don't plot EPW for pure EM componant
+            plot_tpd = False
+        
+        if plot_tpd:
+            print('Plotting TPD curves')
+            # TPD plotting class
+            plots = tpd.plots(self.T_e, self.lambda_0)
+            plots.x_vs_ky(n_e=n_e, x=X/micron, theta=tpd_angle, ax=plt.gca())
+        
+        plt.legend(loc='upper left')
+
         # Add density scale on top x axis
         new_tick_locations = np.linspace(X.min(), X.max(), 4)
 
@@ -291,7 +316,8 @@ class plots():
     # x vs kx plot
     ########################################################################################################################
 
-    def plot_x_vs_kx(self, snap_time, n_min, n_max, x_window, x_bins, k_range):
+    def plot_x_vs_kx(self, snap_time, n_min, n_max, x_window, x_bins, k_range,\
+                     plot_srs=False, srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
 
 
         # Create sub-directory to store results in
@@ -339,6 +365,36 @@ class plots():
         ax.set_ylabel(r'$c k_x / \omega_0$')
         ax.set_ylim(k_x.min(),k_x.max())
         ax.set_xlim(X.min()/micron, X.max()/micron)
+
+        # Find density for new x range for LPI plots
+        if self.density_profile == 'exponential':
+            n_e = plasma.density_exponential(self.n_0, self.L_n, X)
+        elif self.density_profile == 'linear':
+            n_e = plasma.density_linear(self.n_0, self.L_n, X)
+
+        # Plot LPI curves
+        if plot_srs:
+            print('Plotting SRS curves')
+            # SRS plotting class
+            plots = srs.plots(self.T_e, self.lambda_0)
+            if self.field_name[-2:] == 'Bz':
+                # Don't plot EPW for pure EM componant
+                plots.x_vs_kx_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+            else:
+                plots.x_vs_kx_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+                plots.x_vs_kx_EPW(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
+
+        if self.field_name[-2:] == 'Bz':
+            # Again, don't plot EPW for pure EM componant
+            plot_tpd = False
+        
+        if plot_tpd:
+            print('Plotting TPD curves')
+            # TPD plotting class
+            plots = tpd.plots(self.T_e, self.lambda_0)
+            plots.x_vs_kx(n_e=n_e, x=X/micron, theta=tpd_angle, ax=plt.gca())
+        
+        plt.legend(loc='upper left')
 
         # Add density scale on top x axis
         new_tick_locations = np.linspace(X.min(), X.max(), 4)

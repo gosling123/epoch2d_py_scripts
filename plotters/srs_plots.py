@@ -143,3 +143,36 @@ class plots:
                     ax.plot(k_x, k_y, c=epw_colour, label = f'SRS EPW n_e = {np.round(np.array(n_vals).min(),2)} - {np.round(np.array(n_vals).max(),2)} ' + r' $n_{cr}$')
                 else:
                     ax.plot(k_x, k_y, c=epw_colour)
+
+    def x_vs_ky_EM(self, n_e, theta, x, ax):
+
+        k_y = srs.srs_EM_k_y(self.v_th, n_e, theta, self.lambda_0)
+        ax.plot(x, k_y, c=em_colour, label = 'SRS EM')
+        ax.plot(x, -k_y, c=em_colour)
+
+    def x_vs_ky_EPW(self, n_e, theta, x, ax):
+
+        k_y = srs.srs_EPW_k_y(self.v_th, n_e, theta, self.lambda_0)
+        ax.plot(x, k_y, c=epw_colour, label = 'SRS EPW')
+        ax.plot(x, -k_y, c=epw_colour)
+
+        landau_cutoff_srs = srs.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        if landau_cutoff_srs is not None:
+            ax.axvline(x[landau_cutoff_srs], ls = '--', c=epw_colour, label = 'SRS Landau Cutoff')
+
+    def x_vs_kx_EM(self, n_e, theta, x, ax):
+
+        k_x = srs.srs_EM_k_x(self.v_th, n_e, theta, self.lambda_0)
+        ax.plot(x, k_x, c=em_colour, label = 'SRS EM')
+        ax.plot(x, -k_x, c=em_colour)
+
+    def x_vs_kx_EPW(self, n_e, theta, x, ax):
+
+        k_x = srs.srs_EPW_k_x(self.v_th, n_e, theta, self.lambda_0)
+        ax.plot(x, k_x, c=epw_colour, label = 'SRS EPW')
+        ax.plot(x, -k_x, c=epw_colour)
+
+        landau_cutoff_srs = srs.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        if landau_cutoff_srs is not None:
+            ax.axvline(x[landau_cutoff_srs], ls = '--', c=epw_colour, label = 'SRS Landau Cutoff')
+

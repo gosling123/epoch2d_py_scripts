@@ -13,7 +13,7 @@ quantities, dispersion relations and denisty profiles.
 # import libraries
 import numpy as np
 import scipy.constants as const
-
+from calculations import laser_calculator as laser
 
 ################################################################################
 # Useful plasma quantities

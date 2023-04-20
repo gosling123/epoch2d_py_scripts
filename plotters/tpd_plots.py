@@ -87,7 +87,35 @@ class plots:
 
         # Plot linear growth rate curve for max density asked to plot
         # Curve is very similar for all k_L values (i.e for all n_e values)
-        k_x_growth, k_y_growth = tpd.tpd_max_lin_growth(np.array(n_vals).max())
+        k_x_growth, k_y_growth = tpd.tpd_max_lin_growth(np.array(n_vals).max(), self.lambda_0)
         # Have postive and negative solutions
         ax.plot(k_x_growth, k_y_growth, c=plot_colour, ls = '--')
         ax.plot(k_x_growth, -k_y_growth, c=plot_colour, ls = '--', label = 'TPD Growth Curve')
+
+    def x_vs_ky(self, n_e, theta, x, ax):
+
+
+        k1_y, k2_y = tpd.tpd_wns_pairs(self.v_th, n_e, theta, self.lambda_0, componants = 'y')
+        ax.plot(x, k1_y, c=plot_colour)
+        ax.plot(x, k2_y, c=plot_colour, label = 'TPD EPW')
+
+        # Find location where LW are Landau damped
+        landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        if landau_cutoff_tpd is not None:
+            ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = 'TPD Landau Cutoff')
+
+    def x_vs_kx(self, n_e, theta, x, ax):
+
+
+        k1_x, k2_x = tpd.tpd_wns_pairs(self.v_th, n_e, theta, self.lambda_0, componants = 'x')
+        ax.plot(x, k1_x, c=plot_colour)
+        ax.plot(x, k2_x, c=plot_colour, label = 'TPD EPW')
+
+        ax.plot(x, -k1_x, c=plot_colour)
+        ax.plot(x, -k2_x, c=plot_colour)
+
+        # Find location where LW are Landau damped
+        landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        if landau_cutoff_tpd is not None:
+            ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = 'TPD Landau Cutoff')
+

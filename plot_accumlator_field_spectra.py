@@ -128,7 +128,7 @@ if kx_vs_omega:
     plot_srs = True
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 180
-    # Plot tpd curve
+    # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
@@ -167,7 +167,7 @@ if x_vs_omega:
     plot_srs = True
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 180
-    # Plot tpd curve
+    # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
