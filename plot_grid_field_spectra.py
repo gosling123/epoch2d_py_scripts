@@ -19,6 +19,7 @@ for a chosen field
 
 
 import plotters.grid_field_spectra as field_spectra
+import calculations.plasma_calculator as plasma
 import scipy.constants as const
 import numpy as np
 import matplotlib.pyplot as plt
@@ -49,7 +50,7 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../half_omega_long_run"
+path = "../../shared/run0"
 
 # Path for picture outputs to go
 output_path = '../Plots'
@@ -71,19 +72,19 @@ field_name = "Electric_Field_Ex"
 ################################################################################
 
 # Laser Wavelength (units : m)
-lambda_0 = 1.314e-6
+lambda_0 = 0.351e-6
 
 # Electron Temperature (units : keV)
-T_e_keV = 4.3
+T_e_keV = 4.5
 # Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
 # Density profile can be 'exponential' or 'linear'
 density_profile = 'exponential'
 # Density at x = 0 (units : n_cr)
-n_0 = 0.03
+n_0 = 0.1
 # Density scale length (units : m)
-L_n = 101 * lambda_0
+L_n = 600 * micron
 
 ################################################################################
 #  Plotting setup
@@ -104,27 +105,31 @@ plots = field_spectra.plots(files, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_ky = False
+kx_vs_ky = True
 
 if kx_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = 2.5 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.1
+    n_min = plasma.density_exponential(n_0, L_n, x=350*micron)
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  0.2
+    n_max =  plasma.density_exponential(n_0, L_n, x=400*micron)
     # Wavenumber (kx) range to plot
     kx_range = [-2, 2]
     # Wavenumber (ky) range to plot
     ky_range = [-2, 2]
     # Plot SRS curves
-    plot_srs = True
+    plot_srs = False
     # Densities to plot SRS curves for
-    n_srs=[0.1, 0.18]
+    n_srs=[n_min, n_max]
+    # Angle range to plot SRS polar curve for
+    srs_angles = [0, 30]
     # Plot TPD curves
     plot_tpd = True
     # Densities to plot TPD curves for
-    n_tpd = [0.2,0.23]
+    n_tpd = [0.2,0.24]
+    # Angle range to plot TPD polar curve for
+    tpd_angles = [0, 360]
 
   
     # Plot for given value/values
@@ -132,13 +137,13 @@ if kx_vs_ky:
         print('---------------------------------------------------------------')
         print(f'Plotting kx_vs_ky for {snap_time / pico} ps')
         plots.plot_kx_vs_ky(snap_time, n_min, n_max, kx_range, ky_range,\
-                            plot_srs, n_srs, plot_tpd, n_tpd)
+                            plot_srs, n_srs, srs_angles, plot_tpd, n_tpd, tpd_angles)
     else:
         for time in snap_time:
             print('---------------------------------------------------------------')
             print(f'Plotting kx_vs_ky for {time/ pico} ps')
             plots.plot_kx_vs_ky(time, n_min, n_max, kx_range, ky_range,\
-                                plot_srs, n_srs, plot_tpd, n_tpd)
+                                plot_srs, n_srs, srs_angles, plot_tpd, n_tpd, tpd_angles)
 
 
 # ------------------------------------------------------------------------------
@@ -146,7 +151,7 @@ x_vs_ky = False
 
 if x_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = 2.5 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
     n_min = 0.1
     # Maximum density point to start taking FFT from (units : n_cr)
@@ -156,12 +161,12 @@ if x_vs_ky:
     # Plot SRS curve
     plot_srs = True 
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
-    srs_angle = 60
+    srs_angle = 160
     # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
-    tpd_angle='max_lin_growth'
+    tpd_angle = 45
 
   
     # Plot for given value/values
@@ -183,13 +188,13 @@ x_vs_kx = True
 
 if x_vs_kx:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = 2.5 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.03
+    n_min = 0.1
     # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.25
     # Window size for STFT
-    x_window = 500
+    x_window = 1000
     # Number of discrete spatial bins for STFT
     x_bins = 100
     # Wavenumber (ky) range to plot
@@ -197,7 +202,7 @@ if x_vs_kx:
     # Plot SRS curve
     plot_srs = True 
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
-    srs_angle = 210
+    srs_angle = 160
     # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)

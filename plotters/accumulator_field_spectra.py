@@ -28,12 +28,13 @@ from datetime import datetime
 
 import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
-from plotters import srs_plots as srs
+# from plotters import srs_plots as srs
+import calculations.srs_calculator as srs
 from plotters import tpd_plots as tpd
 import get_data.accumulator_field_spectra as field_spectra
 
 # Colour map style
-cmap = cm.jet
+cmap = cm.viridis
 
 # Useful prefix's
 pico = 1e-12
@@ -95,7 +96,8 @@ class plots():
     ########################################################################################################################
 
     def plot_kx_vs_omega(self, t_min, t_max, n_min, n_max, k_range, omega_range,\
-                         plot_srs=False, srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
+                        plot_disp_epw = False, plot_disp_em = False, plot_srs=False,\
+                        srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
                                                             
 
         """
@@ -112,6 +114,10 @@ class plots():
                   form [k_min, k_max]. (units : k_0)
         omega_range = Range of frequencies to plot given as a list of the
                   form [omega_min, omega_max]. (units : omega_0)
+        plot_disp_epw = Logical flag to plot EPW dispersion curve for min and max
+                   number density.
+        plot_disp_em = Logical flag to plot EM dispersion curve for min and max
+                   number density.
         plot_srs = Logical flag to plot wavenumber/omega values due to 
                    SRS in given density region.
         srs_angle = Scattering angle of EM wave to plot SRS curves for (units : degrees)
@@ -174,7 +180,7 @@ class plots():
     
         # Log norm cbar scaling
         vmax = field_fourier.max()
-        vmin = vmax*1e-5
+        vmin = vmax*1e-4
 
         # Plot image
         fft_plot = plt.imshow(field_fourier, cmap=cmap, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
@@ -191,8 +197,31 @@ class plots():
         plt.xlabel(r'$c k_x / \omega_0$')
         cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(k_x, \omega)$ |$^2$', rotation=270, labelpad=25)
 
-        # Plot LPI curves:
+        if self.field_name[-2:] == 'Bz':
+            # Again, don't plot EPW for pure EM componant
+            plot_tpd = False
+            plot_disp_epw = False
 
+    
+        # EPW Dispersion curve
+        if plot_disp_epw:
+            omega_min = plasma.dispersion_EPW(n_e.min(), self.T_e, k_space)
+            omega_max = plasma.dispersion_EPW(n_e.max(), self.T_e, k_space)
+            omega_stoke = plasma.Stokes_branch(n_e.max(), k_space)
+            
+            plt.plot(k_space, omega_min, c='white', ls = '--')
+            plt.plot(k_space, omega_max, c='white', ls = '--', label = 'EPW')
+            plt.plot(k_space, omega_stoke, c='green', ls = '--', label = 'Stokes')
+        # EM Dispersion curve
+        if plot_disp_em:
+            omega_min = plasma.dispersion_EM(n_e.min(), k_space)
+            omega_max = plasma.dispersion_EM(n_e.max(), k_space)
+            
+            plt.plot(k_space, omega_min, c='red', ls = '--')
+            plt.plot(k_space, omega_max, c='red', ls = '--', label = 'EM')
+            
+
+        # Plot LPI curves:
         if plot_srs:
             print('Plotting SRS curves')
             # SRS plotting class
@@ -221,7 +250,7 @@ class plots():
         time_min = np.round(self.field_data.times.min() / pico, 2)
         time_max = np.round(self.field_data.times.max() / pico, 2)
 
-        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{n_min}-{n_max}_n_cr.png'
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{np.round(n_min,2)}-{np.round(n_max,2)}_n_cr.png'
         print(f'Saving Figure to {self.output_path}/kx_vs_omega/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/kx_vs_omega/{plot_name}')
@@ -310,7 +339,7 @@ class plots():
     
         # Log norm cbar scaling
         vmax = field_fourier.max()
-        vmin = vmax*1e-3
+        vmin = vmax*1e-5
 
         # Plot image
         fft_plot = ax.imshow(field_fourier.T, cmap=cmap, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
@@ -371,7 +400,7 @@ class plots():
         time_min = np.round(self.field_data.times.min() / pico, 2)
         time_max = np.round(self.field_data.times.max() / pico, 2)
 
-        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{n_min}-{n_max}_n_cr.png'
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{np.round(n_min,2)}-{np.round(n_max,2)}_n_cr.png'
         print(f'Saving Figure to {self.output_path}/x_vs_omega/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/x_vs_omega/{plot_name}')
@@ -588,7 +617,7 @@ class plots():
         time_min = np.round(time_data.min(), 2)
         time_max = np.round(time_data.max(), 2)
 
-        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{omega_range[0]}-{omega_range[-1]}_omega.png'
+        plot_name = f'{self.field_name[-2:]}_{self.acc_flag}_{time_min}-{time_max}_ps_{np.round(omega_range[0],2)}-{np.round(omega_range[-1],2)}_omega.png'
         print(f'Saving Figure to {self.output_path}/omega_vs_time/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/omega_vs_time/{plot_name}')

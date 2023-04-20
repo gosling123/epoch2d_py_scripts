@@ -21,7 +21,7 @@ import calculations.tpd_calculator as tpd
 import calculations.plasma_calculator as plasma
 
 
-plot_colour = 'black'
+plot_colour = 'white'
 
 
 class plots:
@@ -38,15 +38,17 @@ class plots:
         k1, k2 = tpd.tpd_wns_pairs(self.v_th, n_e, theta, self.lambda_0, componants = 'x')
         omega1, omega2 = tpd.tpd_omegas(n_e, self.T_e, theta, self.lambda_0)
 
+        print(k2)
+
         ax.plot(k1, omega1, c=plot_colour)
-        ax.plot(k2, omega2, c=plot_colour, label = 'TPD EPW')
+        ax.plot(k2, omega2, c=plot_colour)
 
     def x_vs_omega(self, n_e, theta, x, ax):
 
         omega1, omega2 = tpd.tpd_omegas(n_e, self.T_e, theta, self.lambda_0)
 
         ax.plot(x, omega1, c=plot_colour)
-        ax.plot(x, omega2, c=plot_colour, label = 'TPD EPW')
+        ax.plot(x, omega2, c=plot_colour, label = r'TPD EPW ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
     def omega(self, axis, n_min, n_max, ax):
 
@@ -67,21 +69,21 @@ class plots:
 
         if axis == 'x':
             ax.axvline(omega_min.min(), c=plot_colour)
-            ax.axvline(omega_max.max(), c=plot_colour, label = f'TPD EPW {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axvline(omega_max.max(), c=plot_colour, label = f'TPD EPW ({n_min}-{n_max}' + r' $n_{cr}$)')
         elif axis == 'y':
             ax.axhline(omega_min.min(), c=plot_colour)
-            ax.axhline(omega_max.max(), c=plot_colour, label = f'TPD EPW {n_min}-{n_max}' + r' $n_{cr}$')
+            ax.axhline(omega_max.max(), c=plot_colour, label = f'TPD EPW ({n_min}-{n_max}' + r' $n_{cr}$)')
             
-    def kx_vs_ky(self, n_vals, ax):
+    def kx_vs_ky(self, n_vals, angle_range, ax):
         
         if np.isscalar(n_vals):
-            k_x, k_y = tpd.tpd_wns_polar(n_vals, self.v_th, self.lambda_0)
-            ax.plot(k_x, k_y, c=plot_colour, label = f'TPD EPW n_e = {np.round(n_vals,2)}' + r' $n_{cr}$')
+            k_x, k_y = tpd.tpd_wns_polar(n_vals, self.v_th, self.lambda_0, angle_range[0], angle_range[-1])
+            ax.plot(k_x, k_y, c=plot_colour, label = f'TPD EPW ($n_e$ = ' + f'{np.round(n_vals,2)}' + r' $n_{cr}$)')
         else:
             for i in range(len(n_vals)):
-                k_x, k_y = tpd.tpd_wns_polar(n_vals[i], self.v_th, self.lambda_0)
+                k_x, k_y = tpd.tpd_wns_polar(n_vals[i], self.v_th, self.lambda_0, angle_range[0], angle_range[-1])
                 if i == 0:
-                    ax.plot(k_x, k_y, c=plot_colour, label = f'TPD EPW n_e = {np.round(np.array(n_vals).min(),2)} - {np.round(np.array(n_vals).max(),2)} ' + r' $n_{cr}$')
+                    ax.plot(k_x, k_y, c=plot_colour, label = r'TPD EPW ($n_e$ = '+ f'{np.round(np.array(n_vals).min(),2)} - {np.round(np.array(n_vals).max(),2)}' + r' $n_{cr}$)')
                 else:
                     ax.plot(k_x, k_y, c=plot_colour)
 
@@ -97,19 +99,28 @@ class plots:
 
         k1_y, k2_y = tpd.tpd_wns_pairs(self.v_th, n_e, theta, self.lambda_0, componants = 'y')
         ax.plot(x, k1_y, c=plot_colour)
-        ax.plot(x, k2_y, c=plot_colour, label = 'TPD EPW')
+        if theta == 'max_lin_growth':
+            ax.plot(x, k2_y, c=plot_colour, label = r'TPD EPW ($\theta$ = $\theta_{MLG}$)')
+        else:
+            ax.plot(x, k2_y, c=plot_colour, label = r'TPD EPW ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
         # Find location where LW are Landau damped
         landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
         if landau_cutoff_tpd is not None:
-            ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = 'TPD Landau Cutoff')
+            if theta == 'max_lin_growth':
+                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ = $\theta_{MLG}$)')
+            else:
+                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
     def x_vs_kx(self, n_e, theta, x, ax):
 
 
         k1_x, k2_x = tpd.tpd_wns_pairs(self.v_th, n_e, theta, self.lambda_0, componants = 'x')
         ax.plot(x, k1_x, c=plot_colour)
-        ax.plot(x, k2_x, c=plot_colour, label = 'TPD EPW')
+        if theta == 'max_lin_growth':
+            ax.plot(x, k2_x, c=plot_colour, label = r'TPD EPW ($\theta$ = $\theta_{MLG}$)')
+        else:
+            ax.plot(x, k2_x, c=plot_colour, label = r'TPD EPW ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
         ax.plot(x, -k1_x, c=plot_colour)
         ax.plot(x, -k2_x, c=plot_colour)
@@ -117,5 +128,7 @@ class plots:
         # Find location where LW are Landau damped
         landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
         if landau_cutoff_tpd is not None:
-            ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = 'TPD Landau Cutoff')
-
+            if theta == 'max_lin_growth':
+                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ = $\theta_{MLG}$)')
+            else:
+                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')

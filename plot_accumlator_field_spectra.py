@@ -21,6 +21,7 @@ for a chosen accumulator and field
 
 
 import plotters.accumulator_field_spectra as field_spectra
+import calculations.plasma_calculator as plasma
 import scipy.constants as const
 import numpy as np
 import matplotlib.pyplot as plt
@@ -51,10 +52,10 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../half_omega_long_run"
+path = "../../shared/run0"
 
 # Path for picture outputs to go
-output_path = '../Plots'
+output_path = '../Plots_run0'
 
 # String before the number in the SDF files for accumulated field files
 sdf_prefix = "acc_field"
@@ -65,7 +66,7 @@ fnames = f'{path}/{sdf_prefix}*.sdf'
 files = np.array(sorted(glob.glob(fnames)))
 
 # Flag for which accumulator strip to use
-acc_flag = "y_upper"
+acc_flag = "strip_y0"
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
@@ -76,19 +77,19 @@ field_name = "Electric_Field_Ex"
 ################################################################################
 
 # Laser Wavelength (units : m)
-lambda_0 = 1.314e-6
+lambda_0 = 0.351e-6
 
 # Electron Temperature (units : keV)
-T_e_keV = 4.3
+T_e_keV = 4.5
 # Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
 # Density profile can be 'exponential' or 'linear'
 density_profile = 'exponential'
 # Density at x = 0 (units : n_cr)
-n_0 = 0.03
+n_0 = 0.1
 # Density scale length (units : m)
-L_n = 101 * lambda_0
+L_n = 600 * micron
 
 ################################################################################
 #  Plotting setup
@@ -109,43 +110,48 @@ plots = field_spectra.plots(files, acc_flag, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_omega = True
+kx_vs_omega = False
 
 if kx_vs_omega:
     # Minimum time/times to plot (units : s)
-    t_min = 0.0 * pico
+    t_min = 1.5 * pico
     # Maximum time/times to plot (units : s)
-    t_max = 2.52 * pico
+    t_max = 2.5 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.1
+    n_min = plasma.density_exponential(n_0, L_n, x=300*micron)
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  0.2
+    n_max = plasma.density_exponential(n_0, L_n, x=350*micron)
     # Wavenumber range to plot
-    k_range = [-2, 2]
+    k_range = [0.25, 1.55]
     # Frequency range to plot (units : omega_0 (laser))
-    omega_range = [0.0, 1.2]
+    omega_range = [0.4, 0.5]
+    # Plot EPW dispersion Curve
+    plot_disp_epw = True
+    # Plot EPW dispersion Curve
+    plot_disp_em = False
     # Plot SRS curve
-    plot_srs = True
+    plot_srs = False
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 180
     # Plot TPD curve
-    plot_tpd = True
+    plot_tpd = False
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
     tpd_angle='max_lin_growth'
+    
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
         print(f'Plotting kx_vs_omega for {t_min / pico} - {t_max /pico} ps')
         plots.plot_kx_vs_omega(t_min, t_max, n_min, n_max, k_range, omega_range, \
-                               plot_srs, srs_angle, plot_tpd, tpd_angle)
+                               plot_disp_epw, plot_disp_em, plot_srs, srs_angle, plot_tpd, tpd_angle)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
             print(f'Plotting kx_vs_omega for {min_ / pico} - {max_ /pico} ps')
             plots.plot_kx_vs_omega(min_, max_, n_min, n_max, k_range, omega_range, \
-                               plot_srs, srs_angle, plot_tpd, tpd_angle)
+                                   plot_disp_epw, plot_disp_em, plot_srs, srs_angle, plot_tpd, tpd_angle)
 
 
 # ------------------------------------------------------------------------------
@@ -154,21 +160,21 @@ x_vs_omega = True
 if x_vs_omega:
 
     # Minimum time/times to plot (units : s)
-    t_min = 0 * pico
+    t_min = 4.0 * pico
     # Maximum time/times to plot (units : s)
-    t_max = 10 * pico
+    t_max =  5.0 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.03
+    n_min = 0.1
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  1.0
+    n_max =  0.25
     # Frequency range to plot (units : omega_0 (laser))
-    omega_range = [0.2, 0.7]
+    omega_range = [0.4, 0.5]
     # Plot SRS curve
     plot_srs = True
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 180
     # Plot TPD curve
-    plot_tpd = True
+    plot_tpd = False
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
     tpd_angle='max_lin_growth'
@@ -226,7 +232,7 @@ if omega_vs_y:
 
 
 # ------------------------------------------------------------------------------
-omega_vs_time = True
+omega_vs_time = False
 
 if omega_vs_time:
     # Minimum time to start taking FFT from

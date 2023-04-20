@@ -240,7 +240,7 @@ class data:
         window_func = np.outer(w_t, w_x)
         # Coefficient to normalise amplitudes
         amp_coeff = 2.0 / (self.N_t * np.mean(w_t) * self.N_x * np.mean(w_x))
-
+ 
         # Fourier space
         self.omega_space = np.fft.fftshift(np.fft.fftfreq(self.N_t, self.dt / 2.0 / np.pi)) / self.omega_0
         self.k_space = np.fft.fftshift(np.fft.fftfreq(self.N_x, self.dx / 2.0 / np.pi)) / self.k_0

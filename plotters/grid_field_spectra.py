@@ -33,7 +33,7 @@ from plotters import tpd_plots as tpd
 import get_data.grid_field_spectra as field_spectra
 
 # Colour map style
-cmap = cm.jet
+cmap = cm.inferno
 
 # Useful prefix's
 pico = 1e-12
@@ -91,7 +91,8 @@ class plots():
     ########################################################################################################################
 
     def plot_kx_vs_ky(self, snap_time, n_min, n_max, kx_range, ky_range,\
-                      plot_srs=False, n_srs=[0.1, 0.18], plot_tpd=False, n_tpd=[0.2,0.23]):
+                      plot_srs=False, n_srs=[0.1, 0.18], srs_angles=[0, 360],\
+                      plot_tpd=False, n_tpd=[0.2,0.23], tpd_angles=[0, 360]):
 
         
         # Create sub-directory to store results in
@@ -161,10 +162,10 @@ class plots():
             plots = srs.plots(self.T_e, self.lambda_0)
             if self.field_name[-2:] == 'Bz':
                 # Don't plot EPW for pure EM componant
-                plots.kx_vs_ky_EM(n_vals=n_srs, ax=plt.gca())
+                plots.kx_vs_ky_EM(n_vals=n_srs, angle_range=srs_angles, ax=plt.gca())
             else:
-                plots.kx_vs_ky_EM(n_vals=n_srs, ax=plt.gca())
-                plots.kx_vs_ky_EPW(n_vals=n_srs, ax=plt.gca())
+                plots.kx_vs_ky_EM(n_vals=n_srs, angle_range=srs_angles, ax=plt.gca())
+                plots.kx_vs_ky_EPW(n_vals=n_srs, angle_range=srs_angles, ax=plt.gca())
 
         if self.field_name[-2:] == 'Bz':
             # Again, don't plot EPW for pure EM componant
@@ -175,13 +176,13 @@ class plots():
             # TPD plotting class
             plots = tpd.plots(self.T_e, self.lambda_0)
     
-            plots.kx_vs_ky(n_vals=n_tpd, ax=plt.gca())
+            plots.kx_vs_ky(n_vals=n_tpd, angle_range=tpd_angles, ax=plt.gca())
         
         plt.legend()
        
         # Save figure
         time = np.round(self.field_data.time / pico, 3)
-        plot_name = f'{self.field_name[-2:]}_{time}_ps_{n_min}-{n_max}_n_cr.png'
+        plot_name = f'{self.field_name[-2:]}_{time}_ps_{np.round(n_min,2)}-{np.round(n_max,2)}_n_cr.png'
         print(f'Saving Figure to {self.output_path}/kx_vs_ky/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/kx_vs_ky/{plot_name}')
@@ -241,7 +242,7 @@ class plots():
 
         # Colour plot scale (lognorm)
         vmax = field_fourier.max()
-        vmin = vmax*1e-3
+        vmin = vmax*1e-4
 
         fig, ax = plt.subplots()
 
@@ -266,7 +267,6 @@ class plots():
                 # Don't plot EPW for pure EM componant
                 plots.x_vs_ky_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
             else:
-                plots.x_vs_ky_EM(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
                 plots.x_vs_ky_EPW(n_e=n_e, x=X/micron, theta=srs_angle, ax=plt.gca())
 
         if self.field_name[-2:] == 'Bz':
@@ -298,7 +298,7 @@ class plots():
 
         # Save figure
         time = np.round(self.field_data.time / pico, 3)
-        plot_name = f'{self.field_name[-2:]}_{time}_ps_{n_min}-{n_max}_n_cr.png'
+        plot_name = f'{self.field_name[-2:]}_{time}_ps_{np.round(n_min,2)}-{np.round(n_max,2)}_n_cr.png'
         print(f'Saving Figure to {self.output_path}/x_vs_ky/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/x_vs_ky/{plot_name}')
@@ -394,7 +394,7 @@ class plots():
             plots = tpd.plots(self.T_e, self.lambda_0)
             plots.x_vs_kx(n_e=n_e, x=X/micron, theta=tpd_angle, ax=plt.gca())
         
-        plt.legend(loc='upper left')
+        plt.legend(loc='lower left')
 
         # Add density scale on top x axis
         new_tick_locations = np.linspace(X.min(), X.max(), 4)
@@ -413,7 +413,7 @@ class plots():
 
         # Save figure
         time = np.round(self.field_data.time / pico, 3)
-        plot_name = f'{self.field_name[-2:]}_{time}_ps_{n_min}-{n_max}_n_cr.png'
+        plot_name = f'{self.field_name[-2:]}_{time}_ps_{np.round(n_min,2)}-{np.round(n_max,2)}_n_cr.png'
         print(f'Saving Figure to {self.output_path}/x_vs_kx/{plot_name}')
         plt.tight_layout()
         fig.savefig(f'{self.output_path}/x_vs_kx/{plot_name}')
