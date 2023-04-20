@@ -43,7 +43,7 @@ def electron_thermal_speed(T_e):
 
     return np.sqrt(const.k * T_e  / const.m_e)
 
-def electron_plasma_freq(n_e, lambda_0):
+def electron_plasma_freq(n_e, lambda_0, v_th, relativistic = False):
 
     """
     Calculates electron plasma frequencey from given electron
@@ -54,13 +54,14 @@ def electron_plasma_freq(n_e, lambda_0):
     """
 
     omega_0 = laser.omega(lambda_0)
+    omega_pe = np.sqrt(n_e) * omega_0
+    if relativistic:
+        factor = np.sqrt(1.0 - 2.5*v_th**2/const.c**2)
+        return factor * omega_pe
+    else:
+        return omega_pe
 
-    # Using that omega_pe^2 = (n_e * e^2) / (eps_0 * m_e) 
-    # and omega_0^2 = (n_cr * e^2) / (eps_0 * m_e)
-
-    return np.sqrt(n_e) * omega_0
-
-def Debeye_length(T_e, n_e, lambda_0):
+def Debeye_length(T_e, n_e, lambda_0, relativistic = False):
 
     """
     Calculates Debeye length from electron thermal speed
@@ -71,8 +72,8 @@ def Debeye_length(T_e, n_e, lambda_0):
     lambda_0 = Vacuum laser wavelength (units : m)
     """
 
-    omega_pe = electron_plasma_freq(n_e, lambda_0) # rads^-1
     v_th = electron_thermal_speed(T_e) # ms^-1
+    omega_pe = electron_plasma_freq(n_e, lambda_0, v_th, relativistic) # rads^-1
 
     return v_th / omega_pe
 
@@ -224,5 +225,28 @@ def dispersion_EM(n_e, k):
 
     omega = np.sqrt(n_e + k**2)
     return omega
+
+
+# Stokes Branch
+def Stokes_branch(n_e, k):
+
+    """
+    Calculates the Stoke branch wave frequencies for a 
+    range of given wavenumbers k, and desnity point.
+    These wavenumbers are assumed to be normalised by k_0, 
+    (laser wavenumber in vacuum), and the desnity in units
+    of n_cr. The outputted frequency has units of 
+    omega_0 (i.e laser frequency).
+
+    n_e = Electron temperature (units : n_cr)
+    k = Wavenumber magnitude (units : k_0)
+    """
+
+
+    omega_stoke = 1.0 - np.sqrt(n_e + (k - 1.0)**2)
+    
+
+    return omega_stoke
+
 
 

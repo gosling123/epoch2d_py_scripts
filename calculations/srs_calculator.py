@@ -48,11 +48,14 @@ def srs_wns_EM(n_e, v_th, lambda_0, angle):
     omega_0 = laser.omega(lambda_0)
     # Laser wavenumber 
     k_L = laser.wavenumber_plasma(lambda_0, n_e)
+
+    # Plasmon Frequency
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = True)
     
     # Polynomial coefficients for |k_s|
     coeffs = np.zeros(5)
     # Zeroth power coefficient
-    coeffs[4] = (omega_0**4/const.c**4)*(1.0-4.0*n_e) + (3.0*v_th**2/const.c**4)*k_L**2*(3.0*v_th**2 * k_L**2 - 2.0*omega_0**2)
+    coeffs[4] = (omega_0**4/const.c**4)*(1.0-4.0*omega_pe**2/omega_0**2) + (3.0*v_th**2/const.c**4)*k_L**2*(3.0*v_th**2 * k_L**2 - 2.0*omega_0**2)
     # First power coefficient
     coeffs[3] = (12.0*v_th**2/const.c**4)*k_L*np.cos(theta) * (omega_0**2 - 3.0*v_th**2*k_L**2)
     # Second power coefficient
@@ -344,8 +347,8 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     k_x = srs_EPW_k_x(v_th, n_e, angle, lambda_0)
     k_y = srs_EPW_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EPW = np.sqrt(k_x**2 + k_y**2) * k_0
-    # Find the Debeye length 
-    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0)
+    # Find the Debeye length (relativistic flag -> uses first order correction to omega_pe)
+    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0, relativistic = True)
     # Estimate Landau damping strength
     landau_damp = k_srs_EPW * lambda_D
     # Find index where Langmuir waves are not damped

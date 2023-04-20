@@ -49,8 +49,10 @@ def tpd_k_y(v_th, n_e, angle, lambda_0):
     k_0 = laser.wavenumber(lambda_0)
     k_L = laser.wavenumber_plasma(lambda_0, n_e)
     omega_0 = laser.omega(lambda_0)
+    # Plasmon Frequency
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = True)
     # Magnitude of wavevector for given angle (normalised by k_0)
-    mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - n_e) - 0.25 * k_L**2 * const.c**2 / omega_0**2
+    mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25 * k_L**2 * const.c**2 / omega_0**2
     mag_square /= 1.0 - 3.0 * v_th**2 / omega_0**2 * k_L**2 * np.cos(theta)**2
 
     # x componant 
@@ -84,8 +86,10 @@ def tpd_k_x(v_th, n_e, angle, lambda_0):
     k_0 = laser.wavenumber(lambda_0)
     k_L = k_0 * np.sqrt(1.0 - n_e)
     omega_0 = laser.omega(lambda_0)
+    # Plasmon Frequency
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = True)
     # Magnitude of wavevector for given angle (normalised by k_0)
-    mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - n_e) - 0.25 * k_L**2 * const.c**2 / omega_0**2
+    mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25 * k_L**2 * const.c**2 / omega_0**2
     mag_square /= 1.0 - 3.0 * v_th**2 / omega_0**2 * k_L**2 * np.cos(theta)**2
 
     # x componant 
@@ -95,7 +99,7 @@ def tpd_k_x(v_th, n_e, angle, lambda_0):
 
 
 
-def tpd_wns_polar(n_e, v_th, lambda_0):
+def tpd_wns_polar(n_e, v_th, lambda_0, angle_min = 0, angle_max = 360):
 
     """
     Returns the allowd TPD wavenumbers from the matching conditions, at all
@@ -105,18 +109,25 @@ def tpd_wns_polar(n_e, v_th, lambda_0):
     n_e = Electron number density (units : n_cr)
     v_th = Electron thermal speed (units : ms^-1)
     lambda_0 = Vacuum laser wavelength (units : m)
+    angle_min = Minimum angle between k - k0/2 and k0 (units : degrees)
+    angle_min = Maximum angle between k - k0/2 and k0 (units : degrees) 
     """
 
+    # Convert degrees tp radians
+    theta_min = const.pi * angle_min / 180.0
+    theta_max = const.pi * angle_max / 180.0
     # Laser 
     k_0 = laser.wavenumber(lambda_0)
     k_L =  laser.wavenumber_plasma(lambda_0, n_e) / k_0
     omega_0 = laser.omega(lambda_0)
 
     # Angle between k - k0/2 and k0
-    theta = np.linspace(0.0, 2.0*np.pi, 100)
+    theta = np.linspace(theta_min, theta_max, 100)
     # print(v_th)
     # Magnitude of wavevector for given angle (normalised by k_0)
-    k_tpd_rad = np.sqrt(const.c**2 / (3.0 * v_th**2) * (0.25 - n_e) - 0.25*k_L**2)
+    # Plasmon Frequency
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = True)
+    k_tpd_rad = np.sqrt(const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25*k_L**2)
     k_tpd_rad /= np.sqrt( 1.0 - 3.0 * v_th**2 / omega_0**2 * (k_L*k_0)**2 * np.cos(theta)**2) 
     # Find componants from (k_x - 0.5 k_0)^2 + k_y^2 = R^2(theta)
     k_x = k_tpd_rad * np.cos(theta) + k_L/2.0
@@ -263,8 +274,8 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     k1_x, k1_y, k2_x, k2_y = tpd_wns_pairs(v_th, n_e, angle, lambda_0, componants = 'both')
     k_1 = np.sqrt(k1_x**2 + k1_y**2) * k_0
     k_2 = np.sqrt(k2_x**2 + k2_y**2) * k_0
-    # Find the Debeye length 
-    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0)
+    # Find the Debeye length (relativistic flag -> uses first order correction to omega_pe)
+    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0, relativistic = True)
     # Estimate Landau damping strength
     landau_coeff_1  = k_1 * lambda_D
     landau_coeff_2  = k_2 * lambda_D
@@ -280,7 +291,7 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     elif len(landau_cut_2) == 0:
         return landau_cut_1[0]
     else:
-        return min(landau_cut_1[0], landau_cut_2[0])
+        return max(landau_cut_1[0], landau_cut_2[0])
         
 
 def tpd_angle_max_growth(n_e, v_th, lambda_0):
