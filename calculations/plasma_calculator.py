@@ -56,6 +56,8 @@ def electron_plasma_freq(n_e, lambda_0, v_th, relativistic = False):
     omega_0 = laser.omega(lambda_0)
     omega_pe = np.sqrt(n_e) * omega_0
     if relativistic:
+        # First order relativistic corection [Pegoraro and Porcelli, 1984]
+        # brought about by the relativistic mass increase of high-energy thermal electrons.
         factor = np.sqrt(1.0 - 2.5*v_th**2/const.c**2)
         return factor * omega_pe
     else:
@@ -170,7 +172,7 @@ def x_locs_linear(n_0, L_n, x, n_min, n_max):
 # for given wavenumbers
 
 # Electron Plasma Wave (Warm) 
-def dispersion_EPW(n_e, T_e, k):
+def dispersion_EPW(n_e, T_e, k, relativistic):
 
     """
     Calculates electron plasma wave frequencies for a 
@@ -194,13 +196,15 @@ def dispersion_EPW(n_e, T_e, k):
         n_e = n_e
 
     v_th = electron_thermal_speed(T_e)
-    omega = np.sqrt(n_e + 3.0 * v_th**2 * k **2 / const.c**2)
+    omega_0 = laser.omega(lambda_0)
+    omega_pe = electron_plasma_freq(n_e, lambda_0, v_th, relativistic)
+    omega = np.sqrt(omega_pe**2/omega_0**2 + 3.0 * v_th**2 * k **2 / const.c**2)
 
     return omega
 
 
 # Electromagnetic Wave
-def dispersion_EM(n_e, k):
+def dispersion_EM(n_e, v_th, k, relativistic):
 
     """
     Calculates EM wave frequencies for a 
@@ -223,7 +227,10 @@ def dispersion_EM(n_e, k):
     else:
         n_e = n_e
 
-    omega = np.sqrt(n_e + k**2)
+    omega_0 = laser.omega(lambda_0)
+    omega_pe = electron_plasma_freq(n_e, lambda_0, v_th, relativistic)
+
+    omega = np.sqrt(omega_pe**2/omega_0**2 + k**2)
     return omega
 
 

@@ -18,6 +18,10 @@ import scipy.constants as const
 from calculations import plasma_calculator as plasma
 from calculations import laser_calculator as laser
 
+
+# Whether to use relativistic correction for omega_pe
+relativistic = True
+
 ################################################################################
 # Wavenumber matching conditions - EM daughter
 ################################################################################
@@ -50,7 +54,7 @@ def srs_wns_EM(n_e, v_th, lambda_0, angle):
     k_L = laser.wavenumber_plasma(lambda_0, n_e)
 
     # Plasmon Frequency
-    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = True)
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = relativistic)
     
     # Polynomial coefficients for |k_s|
     coeffs = np.zeros(5)
@@ -293,7 +297,7 @@ def srs_omega_EM(n_e, T_e, angle, lambda_0):
     k_y = srs_EM_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EM = np.sqrt(k_x**2 + k_y**2)
     # Require k's to be normlaised by k_0
-    omega_srs_EM = plasma.dispersion_EM(n_e, k_srs_EM)
+    omega_srs_EM = plasma.dispersion_EM(n_e, v_th, k_srs_EM, relativistic)
 
     return omega_srs_EM
 
@@ -317,7 +321,7 @@ def srs_omega_EPW(n_e, T_e, angle, lambda_0):
     k_y = srs_EPW_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EPW = np.sqrt(k_x**2 + k_y**2)
     # Require k's to be normlaised by k_0
-    omega_srs_EPW = plasma.dispersion_EPW(n_e, T_e, k_srs_EPW)
+    omega_srs_EPW = plasma.dispersion_EPW(n_e, T_e, k_srs_EPW, relativistic)
 
     return omega_srs_EPW
 
@@ -348,7 +352,7 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     k_y = srs_EPW_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EPW = np.sqrt(k_x**2 + k_y**2) * k_0
     # Find the Debeye length (relativistic flag -> uses first order correction to omega_pe)
-    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0, relativistic = True)
+    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0, relativistic = relativistic)
     # Estimate Landau damping strength
     landau_damp = k_srs_EPW * lambda_D
     # Find index where Langmuir waves are not damped
