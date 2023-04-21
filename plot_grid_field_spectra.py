@@ -105,7 +105,7 @@ plots = field_spectra.plots(files, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_ky = True
+kx_vs_ky = False
 
 if kx_vs_ky:
     # Time of grid snapshot (units : s)
@@ -147,7 +147,7 @@ if kx_vs_ky:
 
 
 # ------------------------------------------------------------------------------
-x_vs_ky = False
+x_vs_ky = True
 
 if x_vs_ky:
     # Time of grid snapshot (units : s)
@@ -166,7 +166,7 @@ if x_vs_ky:
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
-    tpd_angle = 45
+    tpd_angle = 'max_lin_growth'
 
   
     # Plot for given value/values
@@ -184,7 +184,7 @@ if x_vs_ky:
 
 
 # ------------------------------------------------------------------------------
-x_vs_kx = True
+x_vs_kx = False
 
 if x_vs_kx:
     # Time of grid snapshot (units : s)

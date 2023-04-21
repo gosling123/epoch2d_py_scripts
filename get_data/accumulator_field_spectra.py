@@ -12,14 +12,11 @@ accumulator data for plotting.
 """
 
 import sys
-
 sys.path.append("..")
-
 import sdf
 import numpy as np
 import scipy.constants as const
 from math import floor, ceil
-
 import calculations.laser_calculator as laser
 
 

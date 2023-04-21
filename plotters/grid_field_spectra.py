@@ -6,7 +6,7 @@
 grid_field_spectra.py
 
 File which houses class that defines plotting routines
-for fourier transformed field strips.
+for fourier transformed field grids.
 
 """
 
@@ -14,10 +14,7 @@ for fourier transformed field strips.
 
 # Import libraries
 import sys
-
 sys.path.append("..")
-
-import sdf
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as const
@@ -25,7 +22,6 @@ from matplotlib.colors import LogNorm
 from matplotlib import cm
 import os
 from datetime import datetime
-
 import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
 from plotters import srs_plots as srs
@@ -94,6 +90,24 @@ class plots():
                       plot_srs=False, n_srs=[0.1, 0.18], srs_angles=[0, 360],\
                       plot_tpd=False, n_tpd=[0.2,0.23], tpd_angles=[0, 360]):
 
+        """
+        Function to plot the 2D spatial FFT (kx-ky)
+        of the chosen field. 
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        n_min = Minimum density to take grid data from (units : n_cr)
+        n_max = Maximum density to take grid data from (units : n_cr)
+        kx_range = Wavenumber range (kx) to plot (units : k_0)
+        ky_range = Wavenumber range (ky) to plot (units : k_0)
+        plot_srs = Logical flag to plot SRS matching condtions or not
+        n_srs = Density/Densities to plot SRS matching conditions for (units : n_cr)
+        srs_angles = Set range of angles to plot for [theta_min, theta_max] (units : degrees)
+        plot_tpd = Logical flag to plot TPD matching condtions or not
+        n_tpd = Density/Densities to plot TPD matching conditions for (units : n_cr)
+        tpd_angles = Set range of angles to plot for [theta_min, theta_max] (units : degrees)
+
+        """
+
         
         # Create sub-directory to store results in
         try:
@@ -104,7 +118,7 @@ class plots():
         # Required to get correct X range
         self.field_data.setup_variables()
 
-
+        # Get X locations
         X = self.field_data.X_centres
 
         # Find X locations for given density range
@@ -115,9 +129,10 @@ class plots():
             X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
             n_e = plasma.density_linear(self.n_0, self.L_n, X) # For LPI curves
 
+        # Call required data function
         self.field_data.kx_vs_ky_fft(snap_time=snap_time, x_min=X.min(), x_max=X.max())
 
-    
+        # Extract required data
         field_fourier = self.field_data.field_fourier
         k_x = self.field_data.k_x
         k_y = self.field_data.k_y
@@ -202,7 +217,23 @@ class plots():
     def plot_x_vs_ky(self, snap_time, n_min, n_max, k_range,\
                      plot_srs=False, srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
 
-        
+        """
+        Function to plot the 1D spatial FFT (y)
+        of the chosen field. 
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        n_min = Minimum density to take grid data from (units : n_cr)
+        n_max = Maximum density to take grid data from (units : n_cr)
+        k_range = Wavenumber range (ky) to plot (units : k_0)
+        plot_srs = Logical flag to plot SRS wavenumbers or not
+        srs_angle = Set angle to plot SRS curve for (units : degrees)
+        plot_tpd = Logical flag to plot TPD wavenumbers or not
+        tpd_angle = Set angle to plot TPD curve for (units : degrees)
+                    For angle equating to maximum linear growth, 
+                    tpd_angle = 'max_lin_growth'
+    
+        """
+    
         # Create sub-directory to store results in
         try:
             os.mkdir(f'{self.output_path}/x_vs_ky/')
@@ -211,10 +242,8 @@ class plots():
 
         # Required to get correct X range
         self.field_data.setup_variables()
-
-
+        # Get X locations
         X = self.field_data.X_centres
-
         # Find X locations for given density range
         if self.density_profile == 'exponential':
             X = plasma.x_locs_exponential(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
@@ -223,9 +252,10 @@ class plots():
             X = plasma.x_locs_linear(n_0=self.n_0, L_n=self.L_n, x = X, n_min=n_min, n_max=n_max)
             n_e = plasma.density_linear(self.n_0, self.L_n, X) # For LPI curves
 
+        # Call required data function
         self.field_data.x_vs_ky_fft(snap_time=snap_time, x_min=X.min(), x_max=X.max())
 
-    
+        # Extract required data
         field_fourier = self.field_data.field_fourier
         k_y = self.field_data.k_y
         X = self.field_data.X_centres
@@ -319,6 +349,25 @@ class plots():
     def plot_x_vs_kx(self, snap_time, n_min, n_max, x_window, x_bins, k_range,\
                      plot_srs=False, srs_angle=180, plot_tpd=False, tpd_angle='max_lin_growth'):
 
+        """
+        Function to plot the 1D Short Time Fourier
+        Transform (x) of the chosen field. 
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        n_min = Minimum density to take grid data from (units : n_cr)
+        n_max = Maximum density to take grid data from (units : n_cr)
+        x_window = Length of FFT window for STFT process 
+        x_bins = Number of dicrete dections to perform the process over. 
+        k_range = Wavenumber range (ky) to plot (units : k_0)
+        plot_srs = Logical flag to plot SRS wavenumbers or not
+        srs_angle = Set angle to plot SRS curve for (units : degrees)
+        plot_tpd = Logical flag to plot TPD wavenumbers or not
+        tpd_angle = Set angle to plot TPD curve for (units : degrees)
+                    For angle equating to maximum linear growth, 
+                    tpd_angle = 'max_lin_growth'
+    
+        """
+
 
         # Create sub-directory to store results in
         try:
@@ -326,8 +375,10 @@ class plots():
         except:
             print('', end='\n')
 
+        # Call required data function
         self.field_data.x_vs_kx_stft(snap_time, x_window, x_bins, k_range)
 
+        # Extract required
         X = self.field_data.x_data
         field_fourier = self.field_data.field_fourier
         k_x = self.field_data.k_x

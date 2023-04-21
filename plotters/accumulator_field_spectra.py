@@ -14,10 +14,7 @@ for fourier transformed field strips.
 
 # Import libraries
 import sys
-
 sys.path.append("..")
-
-import sdf
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as const
@@ -25,11 +22,9 @@ from matplotlib.colors import LogNorm
 from matplotlib import cm
 import os
 from datetime import datetime
-
 import calculations.plasma_calculator as plasma
 import calculations.laser_calculator as laser
-# from plotters import srs_plots as srs
-import calculations.srs_calculator as srs
+from plotters import srs_plots as srs
 from plotters import tpd_plots as tpd
 import get_data.accumulator_field_spectra as field_spectra
 
@@ -160,7 +155,7 @@ class plots():
         k_space = self.field_data.k_space
         omega_space = self.field_data.omega_space 
 
-        # Plot for given omega region
+        # Plot for given omega/k region
         omega_indicies = np.where((omega_space >= omega_range[0]) & (omega_space <= omega_range[-1]))[0]
         if len(omega_indicies) == 0:
             sys.exit('ERROR (kx_vs_omega): Inputted omega scale is incorrect. Please ensure it is units of omega_0 (laser) and in range.')
@@ -380,6 +375,10 @@ class plots():
     
             plots.x_vs_omega(n_e=n_e, theta=tpd_angle, x=X/micron, ax=plt.gca())
 
+        # Plot electron plasma-frequency
+        omega_pe = plasma.electron_plasma_freq(n_e, self.lambda_0, self.v_th, relativistic = True)
+        ax.plot(X/micron, omega_pe, c='blue', ls ='--', label = r'$\omega_{pe}$')
+
         plt.legend()
         # Add density scale on top x axis
         new_tick_locations = np.linspace(X.min()/micron, X.max()/micron, 4)
@@ -591,6 +590,7 @@ class plots():
 
         cbar.set_label(r'|' +  str(self.field_name[-2:]) + r'$(\omega, t)$ |$^2$', rotation=270, labelpad=25)
 
+        # Plot LPI curves
         if plot_srs:
             print('Plotting SRS bounds')
             # SRS plotting class

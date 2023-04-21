@@ -12,14 +12,11 @@ spatial grid data for plotting
 """
 
 import sys
-
 sys.path.append("..")
-
 import sdf
 import numpy as np
 import scipy.constants as const
 from math import floor, ceil
-
 import calculations.laser_calculator as laser
 
 
@@ -99,6 +96,15 @@ class data:
 
     def load_grid_field_data(self, snap_time):
 
+        """
+        Loads the required field and grid data for chosen
+        time snapshot.
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+       
+        """
+
+        # Setup key variables
         self.setup_variables()
 
         # Find file index closest to given snapshot time
@@ -116,6 +122,17 @@ class data:
 
 
     def kx_vs_ky_fft(self, snap_time, x_min, x_max):
+
+        """
+        Extracts the 2D spatial FFT of chosen field.
+        FFT is done for domain defined by the given
+        minimum and maximum x values.
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        x_min = Minimum x-posistion to take FFT around (units : m)
+        x_max = Maximum x-posistion to take FFT around (units : m)
+       
+        """
 
 
         # Load required grid data
@@ -149,6 +166,17 @@ class data:
 
     def x_vs_ky_fft(self, snap_time, x_min, x_max):
         
+        """
+        Extracts the 1D spatial FFT (y) of chosen field.
+        FFT is done for domain defined by the given
+        minimum and maximum x values.
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        x_min = Minimum x-posistion to take FFT around (units : m)
+        x_max = Maximum x-posistion to take FFT around (units : m)
+       
+        """
+
         # Load required grid data
         self.load_grid_field_data(snap_time)
 
@@ -182,6 +210,19 @@ class data:
         self.field_fourier = np.array(field_fourier)
 
     def x_vs_kx_stft(self, snap_time, x_window, x_bins, k_range):
+
+        """
+        Extracts the Short Time Fourier Transform (STFT)
+        of chosen field. The STFT process is defined by the
+        size of the window, (i.e frequency resolution) and number of
+        spatial bins to perform this FFT window over (i.e spatial resolution)
+
+        snap_time = Simuation time of the field grid to FFT (units : s)
+        x_window = Length of FFT window for STFT process 
+        x_bins = Number of dicrete dections to perform the process over. 
+        k_range = Wavenumber range (kx) to store output for (units : k_0)
+       
+        """
 
         # Load required grid data
         self.load_grid_field_data(snap_time)
