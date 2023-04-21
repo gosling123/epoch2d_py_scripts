@@ -98,7 +98,6 @@ except:
     print(f'{output_path} directory already exists')
 
 
-
 # Initiate plotting class
 plots = field_spectra.plots(files, field_name, output_path, \
                             lambda_0, T_e_K, density_profile, n_0, L_n)
