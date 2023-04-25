@@ -45,7 +45,7 @@ class data:
         self.files = files
         self.nfiles = len(files)
         self.field_name = field_name
-    
+        
         # Base plasma/laser parameters required
         self.lambda_0 = lambda_0
         self.T_e = T_e

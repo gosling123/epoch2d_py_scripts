@@ -19,9 +19,6 @@ from calculations import plasma_calculator as plasma
 from calculations import laser_calculator as laser
 
 
-# Whether to use relativistic correction for omega_pe
-relativistic = True
-
 ################################################################################
 # Wavenumber matching conditions
 ################################################################################
@@ -54,7 +51,7 @@ def tpd_k_y(v_th, n_e, angle, lambda_0):
     k_L = laser.wavenumber_plasma(lambda_0, n_e)
     omega_0 = laser.omega(lambda_0)
     # Plasmon Frequency
-    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = relativistic)
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th)
     # Magnitude of wavevector for given angle (normalised by k_0)
     mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25 * k_L**2 * const.c**2 / omega_0**2
     mag_square /= 1.0 - 3.0 * v_th**2 / omega_0**2 * k_L**2 * np.cos(theta)**2
@@ -91,7 +88,7 @@ def tpd_k_x(v_th, n_e, angle, lambda_0):
     k_L = k_0 * np.sqrt(1.0 - n_e)
     omega_0 = laser.omega(lambda_0)
     # Plasmon Frequency
-    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = relativistic)
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th)
     # Magnitude of wavevector for given angle (normalised by k_0)
     mag_square =  const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25 * k_L**2 * const.c**2 / omega_0**2
     mag_square /= 1.0 - 3.0 * v_th**2 / omega_0**2 * k_L**2 * np.cos(theta)**2
@@ -130,7 +127,7 @@ def tpd_wns_polar(n_e, v_th, lambda_0, angle_min = 0, angle_max = 360):
     # print(v_th)
     # Magnitude of wavevector for given angle (normalised by k_0)
     # Plasmon Frequency
-    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th, relativistic = relativistic)
+    omega_pe = plasma.electron_plasma_freq(n_e, lambda_0, v_th)
     k_tpd_rad = np.sqrt(const.c**2 / (3.0 * v_th**2) * (0.25 - omega_pe**2/omega_0**2) - 0.25*k_L**2)
     k_tpd_rad /= np.sqrt( 1.0 - 3.0 * v_th**2 / omega_0**2 * (k_L*k_0)**2 * np.cos(theta)**2) 
     # Find componants from (k_x - 0.5 k_0)^2 + k_y^2 = R^2(theta)
@@ -211,8 +208,8 @@ def tpd_omegas(n_e, T_e, angle, lambda_0):
     k_1 = np.sqrt(k1_x**2 + k1_y**2)
     k_2 = np.sqrt(k2_x**2 + k2_y**2) 
     # Require k's to be normlaised by k_0
-    omega_1 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_1, relativistic)
-    omega_2 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_2, relativistic)
+    omega_1 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_1)
+    omega_2 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_2)
 
     return omega_1, omega_2
 
@@ -259,7 +256,7 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     cutoff = Strength of Landau damping i.e k * Debeye length = cutoff (units : dimensionless) 
     """
 
-    
+    # Electron thermal speed
     v_th = plasma.electron_thermal_speed(T_e)
     
     if angle == 'max_lin_growth':
@@ -278,8 +275,8 @@ def landau_cutoff_index(T_e, n_e, lambda_0, angle, cutoff = 0.3):
     k1_x, k1_y, k2_x, k2_y = tpd_wns_pairs(v_th, n_e, angle, lambda_0, componants = 'both')
     k_1 = np.sqrt(k1_x**2 + k1_y**2) * k_0
     k_2 = np.sqrt(k2_x**2 + k2_y**2) * k_0
-    # Find the Debeye length (relativistic flag -> uses first order correction to omega_pe)
-    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0, relativistic = relativistic)
+    # Find the Debeye length 
+    lambda_D = plasma.Debeye_length(T_e, n_e, lambda_0)
     # Estimate Landau damping strength
     landau_coeff_1  = k_1 * lambda_D
     landau_coeff_2  = k_2 * lambda_D

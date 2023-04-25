@@ -17,8 +17,8 @@ import calculations.srs_calculator as srs
 import calculations.plasma_calculator as plasma
 
 # Set colours for plot
-em_colour = 'red'
-epw_colour = 'green'
+em_colour = 'lime'
+epw_colour = 'white'
 
 
 class plots:

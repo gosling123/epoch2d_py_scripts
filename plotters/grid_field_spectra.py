@@ -153,7 +153,7 @@ class plots():
         print(f'Plotting kx_vs_ky')
 
        # Colour plot scale (lognorm)
-        vmax = field_fourier.max()
+        vmax = 1e-6
         vmin = vmax*1e-4
     
         fig, ax = plt.subplots()
@@ -169,6 +169,12 @@ class plots():
         plt.ylabel(r'$c k_y / \omega_0$')
         plt.ylim(k_y.min(), k_y.max())
         plt.xlim(k_x.min(), k_x.max())
+        
+        # x = np.linspace(-1, 1, 1000)
+        # angles = np.linspace(0, np.pi, 6)
+        # for angle in angles:
+        #     y = np.tan(angle) * x
+        #     ax.plot(x, y, ls='-', c = 'white', lw=1)
 
         # Plot LPI curves
         if plot_srs:
@@ -271,8 +277,8 @@ class plots():
         print(f'Plotting x_vs_ky')
 
         # Colour plot scale (lognorm)
-        vmax = field_fourier.max()
-        vmin = vmax*1e-4
+        vmax = 1e-4
+        vmin = vmax*1e-2
 
         fig, ax = plt.subplots()
 

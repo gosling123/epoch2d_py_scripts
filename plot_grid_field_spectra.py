@@ -50,10 +50,10 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../../shared/run0"
+path = "../half_omega_long_run"
 
 # Path for picture outputs to go
-output_path = '../Plots'
+output_path = '../half_omega_plots_final'
 
 # String before the number in the SDF files for accumulated field files
 sdf_prefix = "regular"
@@ -62,6 +62,8 @@ sdf_prefix = "regular"
 fnames = f'{path}/{sdf_prefix}*.sdf'
 # Sort in ascending order
 files = np.array(sorted(glob.glob(fnames)))
+
+print(files)
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
@@ -72,19 +74,19 @@ field_name = "Electric_Field_Ex"
 ################################################################################
 
 # Laser Wavelength (units : m)
-lambda_0 = 0.351e-6
+lambda_0 = 1.314e-6
 
 # Electron Temperature (units : keV)
-T_e_keV = 4.5
+T_e_keV = 4.3
 # Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
 # Density profile can be 'exponential' or 'linear'
 density_profile = 'exponential'
 # Density at x = 0 (units : n_cr)
-n_0 = 0.1
+n_0 = 0.03
 # Density scale length (units : m)
-L_n = 600 * micron
+L_n = 101 * lambda_0
 
 ################################################################################
 #  Plotting setup
@@ -104,15 +106,15 @@ plots = field_spectra.plots(files, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_ky = False
+kx_vs_ky = True
 
 if kx_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.5 * pico
+    snap_time = 2.0 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = plasma.density_exponential(n_0, L_n, x=350*micron)
+    n_min = 0.18
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  plasma.density_exponential(n_0, L_n, x=400*micron)
+    n_max =  0.25
     # Wavenumber (kx) range to plot
     kx_range = [-2, 2]
     # Wavenumber (ky) range to plot
@@ -120,13 +122,13 @@ if kx_vs_ky:
     # Plot SRS curves
     plot_srs = False
     # Densities to plot SRS curves for
-    n_srs=[n_min, n_max]
+    n_srs=[0.06, 0.18]
     # Angle range to plot SRS polar curve for
-    srs_angles = [0, 30]
+    srs_angles = [0, 360]
     # Plot TPD curves
     plot_tpd = True
     # Densities to plot TPD curves for
-    n_tpd = [0.2,0.24]
+    n_tpd = [0.2,0.23]
     # Angle range to plot TPD polar curve for
     tpd_angles = [0, 360]
 
@@ -150,9 +152,9 @@ x_vs_ky = True
 
 if x_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.5 * pico
+    snap_time = 2.0 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.1
+    n_min = 0.06
     # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.25
     # Wavenumber (ky) range to plot
@@ -160,7 +162,7 @@ if x_vs_ky:
     # Plot SRS curve
     plot_srs = True 
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
-    srs_angle = 160
+    srs_angle = 140
     # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
@@ -182,20 +184,20 @@ if x_vs_ky:
                                plot_srs, srs_angle, plot_tpd, tpd_angle)
 
 
-# ------------------------------------------------------------------------------
-x_vs_kx = False
+# ----------------------------------------------------------------------------
+x_vs_kx = True
 
 if x_vs_kx:
     # Time of grid snapshot (units : s)
-    snap_time = 2.5 * pico
+    snap_time = 2.0 * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.1
+    n_min = 0.03
     # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.25
     # Window size for STFT
     x_window = 1000
     # Number of discrete spatial bins for STFT
-    x_bins = 100
+    x_bins = 200
     # Wavenumber (ky) range to plot
     k_range = [-2, 2]
     # Plot SRS curve

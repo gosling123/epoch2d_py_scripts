@@ -16,7 +16,7 @@ import calculations.tpd_calculator as tpd
 import calculations.plasma_calculator as plasma
 
 # Set colour for plot
-plot_colour = 'white'
+plot_colour = 'lime'
 
 
 class plots:

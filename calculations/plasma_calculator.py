@@ -15,8 +15,8 @@ import numpy as np
 import scipy.constants as const
 from calculations import laser_calculator as laser
 
-
-relativistic = True
+# Whether to use relativistic correction for omega_pe
+relativistic = False
 
 ################################################################################
 # Useful plasma quantities
