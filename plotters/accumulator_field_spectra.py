@@ -200,8 +200,8 @@ class plots():
     
         # EPW Dispersion curve
         if plot_disp_epw:
-            omega_min = plasma.dispersion_EPW(n_e.min(), self.T_e, k_space)
-            omega_max = plasma.dispersion_EPW(n_e.max(), self.T_e, k_space)
+            omega_min = plasma.dispersion_EPW(n_e.min(), self.T_e, self.lambda_0, k_space)
+            omega_max = plasma.dispersion_EPW(n_e.max(), self.T_e, self.lambda_0, k_space)
             omega_stoke = plasma.Stokes_branch(n_e.max(), k_space)
             
             plt.plot(k_space, omega_min, c='white', ls = '--')
@@ -209,8 +209,8 @@ class plots():
             plt.plot(k_space, omega_stoke, c='green', ls = '--', label = 'Stokes')
         # EM Dispersion curve
         if plot_disp_em:
-            omega_min = plasma.dispersion_EM(n_e.min(), k_space)
-            omega_max = plasma.dispersion_EM(n_e.max(), k_space)
+            omega_min = plasma.dispersion_EM(n_e.min(), self.v_th, self.lambda_0, k_space)
+            omega_max = plasma.dispersion_EM(n_e.max(), self.v_th, self.lambda_0, k_space)
             
             plt.plot(k_space, omega_min, c='red', ls = '--')
             plt.plot(k_space, omega_max, c='red', ls = '--', label = 'EM')

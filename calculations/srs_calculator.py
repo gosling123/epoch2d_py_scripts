@@ -297,7 +297,7 @@ def srs_omega_EM(n_e, T_e, angle, lambda_0):
     k_y = srs_EM_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EM = np.sqrt(k_x**2 + k_y**2)
     # Require k's to be normlaised by k_0
-    omega_srs_EM = plasma.dispersion_EM(n_e, v_th, k_srs_EM, relativistic)
+    omega_srs_EM = plasma.dispersion_EM(n_e, v_th, lambda_0, k_srs_EM, relativistic)
 
     return omega_srs_EM
 
@@ -321,7 +321,7 @@ def srs_omega_EPW(n_e, T_e, angle, lambda_0):
     k_y = srs_EPW_k_y(v_th, n_e, angle, lambda_0)
     k_srs_EPW = np.sqrt(k_x**2 + k_y**2)
     # Require k's to be normlaised by k_0
-    omega_srs_EPW = plasma.dispersion_EPW(n_e, T_e, k_srs_EPW, relativistic)
+    omega_srs_EPW = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_srs_EPW, relativistic)
 
     return omega_srs_EPW
 

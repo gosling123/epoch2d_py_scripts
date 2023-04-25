@@ -211,8 +211,8 @@ def tpd_omegas(n_e, T_e, angle, lambda_0):
     k_1 = np.sqrt(k1_x**2 + k1_y**2)
     k_2 = np.sqrt(k2_x**2 + k2_y**2) 
     # Require k's to be normlaised by k_0
-    omega_1 = plasma.dispersion_EPW(n_e, T_e, k_1, relativistic)
-    omega_2 = plasma.dispersion_EPW(n_e, T_e, k_2, relativistic)
+    omega_1 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_1, relativistic)
+    omega_2 = plasma.dispersion_EPW(n_e, T_e, lambda_0, k_2, relativistic)
 
     return omega_1, omega_2
 

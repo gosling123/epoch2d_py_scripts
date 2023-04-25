@@ -172,7 +172,7 @@ if x_vs_omega:
     # Plot SRS curve
     plot_srs = True
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
-    srs_angle = 180
+    srs_angle = 233
     # Plot TPD curve
     plot_tpd = False
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)

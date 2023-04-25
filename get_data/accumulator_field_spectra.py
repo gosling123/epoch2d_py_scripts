@@ -180,7 +180,7 @@ class data:
         print('Extracting Required Data')
         # Read through sdf files and store each result
         for i in range(self.nfiles_cut):
-        
+            print(i, self.nfiles_cut)
             d = sdf.read(self.files_cut[i])
             field_acc = d.__dict__[self.var_name]
             time_acc = field_acc.grid.data[-1]

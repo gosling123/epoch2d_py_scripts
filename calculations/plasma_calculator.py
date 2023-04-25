@@ -15,6 +15,9 @@ import numpy as np
 import scipy.constants as const
 from calculations import laser_calculator as laser
 
+
+relativistic = True
+
 ################################################################################
 # Useful plasma quantities
 ################################################################################
@@ -43,7 +46,7 @@ def electron_thermal_speed(T_e):
 
     return np.sqrt(const.k * T_e  / const.m_e)
 
-def electron_plasma_freq(n_e, lambda_0, v_th, relativistic = False):
+def electron_plasma_freq(n_e, lambda_0, v_th, relativistic=relativistic):
 
     """
     Calculates electron plasma frequencey from given electron
@@ -63,7 +66,7 @@ def electron_plasma_freq(n_e, lambda_0, v_th, relativistic = False):
     else:
         return omega_pe
 
-def Debeye_length(T_e, n_e, lambda_0, relativistic = False):
+def Debeye_length(T_e, n_e, lambda_0, relativistic=relativistic):
 
     """
     Calculates Debeye length from electron thermal speed
@@ -172,7 +175,7 @@ def x_locs_linear(n_0, L_n, x, n_min, n_max):
 # for given wavenumbers
 
 # Electron Plasma Wave (Warm) 
-def dispersion_EPW(n_e, T_e, k, relativistic):
+def dispersion_EPW(n_e, T_e, lambda_0, k, relativistic=relativistic):
 
     """
     Calculates electron plasma wave frequencies for a 
@@ -204,7 +207,7 @@ def dispersion_EPW(n_e, T_e, k, relativistic):
 
 
 # Electromagnetic Wave
-def dispersion_EM(n_e, v_th, k, relativistic):
+def dispersion_EM(n_e, v_th, lambda_0, k, relativistic=relativistic):
 
     """
     Calculates EM wave frequencies for a 
