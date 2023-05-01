@@ -50,10 +50,10 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../half_omega_long_run"
+path = "../../shared/half_omega_runs/run13"
 
 # Path for picture outputs to go
-output_path = '../half_omega_plots_final'
+output_path = '../Plots_run13'
 
 # String before the number in the SDF files for accumulated field files
 sdf_prefix = "regular"
@@ -62,8 +62,6 @@ sdf_prefix = "regular"
 fnames = f'{path}/{sdf_prefix}*.sdf'
 # Sort in ascending order
 files = np.array(sorted(glob.glob(fnames)))
-
-print(files)
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
@@ -106,13 +104,13 @@ plots = field_spectra.plots(files, field_name, output_path, \
 
 
 # ------------------------------------------------------------------------------
-kx_vs_ky = True
+kx_vs_ky = False
 
 if kx_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = np.array([1.8,  3.6, 4.5, 5.4, 7.3, 15.0, 23,  30]) * pico
     # Minimum density point to start taking FFT from (units : n_cr)
-    n_min = 0.18
+    n_min = 0.19
     # Maximum density point to start taking FFT from (units : n_cr)
     n_max =  0.25
     # Wavenumber (kx) range to plot
@@ -120,15 +118,15 @@ if kx_vs_ky:
     # Wavenumber (ky) range to plot
     ky_range = [-2, 2]
     # Plot SRS curves
-    plot_srs = False
+    plot_srs = True
     # Densities to plot SRS curves for
-    n_srs=[0.06, 0.18]
+    n_srs=[0.19, 0.23]
     # Angle range to plot SRS polar curve for
     srs_angles = [0, 360]
     # Plot TPD curves
     plot_tpd = True
     # Densities to plot TPD curves for
-    n_tpd = [0.2,0.23]
+    n_tpd = [0.19,0.23]
     # Angle range to plot TPD polar curve for
     tpd_angles = [0, 360]
 
@@ -148,11 +146,11 @@ if kx_vs_ky:
 
 
 # ------------------------------------------------------------------------------
-x_vs_ky = True
+x_vs_ky = False
 
 if x_vs_ky:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = np.array([1.8,  3.6, 4.5, 5.4, 7.3, 15.0, 23,  30]) * pico
     # Minimum density point to start taking FFT from (units : n_cr)
     n_min = 0.06
     # Maximum density point to start taking FFT from (units : n_cr)
@@ -162,14 +160,14 @@ if x_vs_ky:
     # Plot SRS curve
     plot_srs = True 
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
-    srs_angle = 140
+    srs_angle = 160
     # Plot TPD curve
     plot_tpd = True
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
     tpd_angle = 'max_lin_growth'
 
-  
+
     # Plot for given value/values
     if np.isscalar(snap_time):
         print('---------------------------------------------------------------')
@@ -189,13 +187,13 @@ x_vs_kx = True
 
 if x_vs_kx:
     # Time of grid snapshot (units : s)
-    snap_time = 2.0 * pico
+    snap_time = [4.0 * pico, 7.2*pico, 18*pico, 25 * pico, 30 * pico]
     # Minimum density point to start taking FFT from (units : n_cr)
     n_min = 0.03
     # Maximum density point to start taking FFT from (units : n_cr)
-    n_max =  0.25
+    n_max =  0.26
     # Window size for STFT
-    x_window = 1000
+    x_window = 750
     # Number of discrete spatial bins for STFT
     x_bins = 200
     # Wavenumber (ky) range to plot
@@ -205,7 +203,7 @@ if x_vs_kx:
     # Angle to plot srs curve (angle of sacttred EM wave) (units : degrees)
     srs_angle = 160
     # Plot TPD curve
-    plot_tpd = True
+    plot_tpd = False
     # Angle to plot TPD curve (centred angle of two LW) (units : degrees)
     # For angle at maximum linear growth set to 'max_lin_growth'
     tpd_angle='max_lin_growth'

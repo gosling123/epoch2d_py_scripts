@@ -226,10 +226,10 @@ class plots:
         ax.plot(x, -k1_x, c=plot_colour)
         ax.plot(x, -k2_x, c=plot_colour)
 
-        # Find location where LW are Landau damped
-        landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
-        if landau_cutoff_tpd is not None:
-            if theta == 'max_lin_growth':
-                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ = $\theta_{MLG}$)')
-            else:
-                ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
+        # # Find location where LW are Landau damped
+        # landau_cutoff_tpd = tpd.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        # if landau_cutoff_tpd is not None:
+        #     if theta == 'max_lin_growth':
+        #         ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ = $\theta_{MLG}$)')
+        #     else:
+        #         ax.axvline(x[landau_cutoff_tpd], ls = '--', c=plot_colour, label = r'TPD Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')

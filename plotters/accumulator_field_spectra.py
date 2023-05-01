@@ -531,7 +531,7 @@ class plots():
     ########################################################################################################################
 
     def plot_omega_vs_time(self, t_min, t_max, space_slices, t_bins, t_window, omega_range, \
-                            n_min=0.03, n_max=0.249, plot_srs=False, plot_tpd=False):
+                            n_srs=[0.06, 0.18], n_tpd=[0.19, 0.25], plot_srs=False, plot_tpd=False):
 
         """
         Function to plot omega_vs_time for chosen time, range. 
@@ -570,6 +570,8 @@ class plots():
         omega_space = self.field_data.omega_space
         time_data = self.field_data.time_data / pico
 
+
+        print('Plotting omega_vs_time')
         # Plot STFT
         fig, ax = plt.subplots()
 
@@ -595,22 +597,14 @@ class plots():
             print('Plotting SRS bounds')
             # SRS plotting class
             plots = srs.plots(self.T_e, self.lambda_0)
-            if self.field_name[-2:] == 'Bz':
-                # Don't plot EPW for pure EM componant
-                plots.omega_EM(axis='y', n_min=n_min, n_max=n_max, ax=plt.gca())
-            else:
-                plots.omega_EM(axis='y', n_min=n_min, n_max=n_max, ax=plt.gca())
-                plots.omega_EPW(axis='y', n_min=n_min, n_max=n_max, ax=plt.gca())
-       
-        if self.field_name[-2:] == 'Bz':
-            # Again, don't plot EPW for pure EM componant
-            plot_tpd = False
-        
+            #plots.omega_EM(axis='y', n_min=n_srs[0], n_max=n_srs[1], ax=plt.gca())
+            plots.omega_EPW(axis='y', n_min=n_srs[0], n_max=n_srs[1], ax=plt.gca())
+              
         if plot_tpd:
             print('Plotting TPD bounds')
             # TPD plotting class
             plots = tpd.plots(self.T_e, self.lambda_0)
-            plots.omega(axis='x', n_min=n_min, n_max=n_max, ax=plt.gca())
+            plots.omega(axis='x', n_min=n_tpd[0], n_max=n_tpd[1], ax=plt.gca())
 
         plt.legend()
         # Save figure

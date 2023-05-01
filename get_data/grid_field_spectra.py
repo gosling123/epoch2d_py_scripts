@@ -249,6 +249,7 @@ class data:
         field_fourier = []
         x_data = []
 
+
         print('Extracting x_vs_kx STFT')
 
         for i in range(x_bins):
@@ -263,7 +264,8 @@ class data:
             fourier_space_av /= self.N_y
             # FFT in each time window
             field_fourier.append(fourier_space_av[k_indicies])
-            x_data.append(self.X_centres[i*x_hop])
+            # x_data.append(self.X_centres[i*x_hop])
+            x_data.append(self.X_centres[i*x_hop+x_window//2])
 
         # Use numpy arrays for plots
         self.field_fourier = np.array(field_fourier)

@@ -199,7 +199,7 @@ class plots():
     
             plots.kx_vs_ky(n_vals=n_tpd, angle_range=tpd_angles, ax=plt.gca())
         
-        plt.legend()
+        plt.legend(loc='upper left')
        
         # Save figure
         time = np.round(self.field_data.time / pico, 3)
@@ -278,7 +278,7 @@ class plots():
 
         # Colour plot scale (lognorm)
         vmax = 1e-4
-        vmin = vmax*1e-2
+        vmin = vmax*1e-3
 
         fig, ax = plt.subplots()
 
@@ -406,8 +406,8 @@ class plots():
         print(f'Plotting x_vs_kx')
 
         # Colour plot scale (lognorm)
-        vmax = field_fourier.max()
-        vmin = vmax*1e-3
+        vmax = 1e-4
+        vmin = vmax*1e-2
 
         fig, ax = plt.subplots()
 
@@ -429,6 +429,8 @@ class plots():
         elif self.density_profile == 'linear':
             n_e = plasma.density_linear(self.n_0, self.L_n, X)
 
+        
+
         # Plot LPI curves
         if plot_srs:
             print('Plotting SRS curves')
@@ -444,6 +446,8 @@ class plots():
         if self.field_name[-2:] == 'Bz':
             # Again, don't plot EPW for pure EM componant
             plot_tpd = False
+            ax.plot(X/micron, np.sqrt(1.0 - n_e), c='magenta', label = 'Laser')
+            ax.plot(X/micron, -np.sqrt(1.0 - n_e), c='magenta')
         
         if plot_tpd:
             print('Plotting TPD curves')

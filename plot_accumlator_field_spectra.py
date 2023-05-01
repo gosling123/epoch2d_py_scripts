@@ -52,10 +52,10 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../../shared/run0"
+path = "../../shared/half_omega_runs/run7"
 
 # Path for picture outputs to go
-output_path = '../Plots_run0'
+output_path = '../Plots_run7'
 
 # String before the number in the SDF files for accumulated field files
 sdf_prefix = "acc_field"
@@ -66,30 +66,30 @@ fnames = f'{path}/{sdf_prefix}*.sdf'
 files = np.array(sorted(glob.glob(fnames)))
 
 # Flag for which accumulator strip to use
-acc_flag = "strip_y0"
+acc_flag = "x_left"
 
 # Particular field to take fft of. Read from sdf file directory with naming style
 # "Electric_Field_E{x,y or z}", and similar for magnetic field.
-field_name = "Electric_Field_Ex"
+field_name = "Magnetic_Field_Bz"
 
 ################################################################################
 # Define simulation setup
 ################################################################################
 
 # Laser Wavelength (units : m)
-lambda_0 = 0.351e-6
+lambda_0 = 1.314e-6
 
 # Electron Temperature (units : keV)
-T_e_keV = 4.5
+T_e_keV = 4.3
 # Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
 # Density profile can be 'exponential' or 'linear'
 density_profile = 'exponential'
 # Density at x = 0 (units : n_cr)
-n_0 = 0.1
+n_0 = 0.03
 # Density scale length (units : m)
-L_n = 600 * micron
+L_n = 101 * lambda_0
 
 ################################################################################
 #  Plotting setup
@@ -155,7 +155,7 @@ if kx_vs_omega:
 
 
 # ------------------------------------------------------------------------------
-x_vs_omega = True
+x_vs_omega = False
 
 if x_vs_omega:
 
@@ -232,41 +232,41 @@ if omega_vs_y:
 
 
 # ------------------------------------------------------------------------------
-omega_vs_time = False
+omega_vs_time = True
 
 if omega_vs_time:
     # Minimum time to start taking FFT from
     t_min = 0 * pico
     # Maximum time to start taking FFT from
-    t_max = 50 * pico
+    t_max = 10 * pico
     # Number of x or y slices to average over
     space_slices = 10
     # Number of time bins
     t_bins = 500
     # Size of moving FFT window
-    t_window = 1000
+    t_window = 5000
     # Frequenecy range to plot (units of laser frequency)
-    omega_range = [0.1, 0.7]
+    omega_range = [1.2, 1.7]
     # Plot SRS frequency bounds
     plot_srs = True
     # Plot TPD frequency bounds
     plot_tpd = True
     # Minimum density for bound (units : n_cr)
-    n_min=0.2
+    n_srs=[0.06,0.18]
     # Maximum density for bound (units : n_cr)
-    n_max=0.249
+    n_tpd=[0.19,0.249]
 
     # Plot for given value/values
     if np.isscalar(t_min) and np.isscalar(t_max):
         print('---------------------------------------------------------------')
         print(f'Plotting omega_vs_time for {t_min / pico} - {t_max /pico} ps')
-        plots.plot_omega_vs_time(t_min, t_max, space_slices, t_bins, t_window, omega_range,\
-                                  n_min, n_max, plot_srs, plot_tpd)
+        plots.plot_omega_vs_time(t_min, t_max, space_slices, t_bins, t_window, omega_range, \
+                            n_srs, n_tpd, plot_srs, plot_tpd)
     else:
         for min_, max_ in zip(t_min, t_max):
             print('---------------------------------------------------------------')
             print(f'Plotting omega_vs_time for {min_ / pico} - {max_ /pico} ps')
-            plots.plot_omega_vs_time(min_, max_, space_slices, t_bins, t_window, omega_range,\
-                                     n_min, n_max, plot_srs, plot_tpd)
+            plots.plot_omega_vs_time(min_, max_, space_slices, t_bins, t_window, omega_range, \
+                            n_srs, n_tpd, plot_srs, plot_tpd)
 
 

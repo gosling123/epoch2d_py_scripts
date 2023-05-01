@@ -17,7 +17,7 @@ import calculations.srs_calculator as srs
 import calculations.plasma_calculator as plasma
 
 # Set colours for plot
-em_colour = 'lime'
+em_colour = 'blue'
 epw_colour = 'white'
 
 
@@ -366,8 +366,8 @@ class plots:
         # Plot for conjugate of FFT
         ax.plot(x, -k_x, c=epw_colour)
 
-        # Plot landau cutoff k_epw lambda_D ~ 0.3
-        landau_cutoff_srs = srs.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
-        if landau_cutoff_srs is not None:
-            ax.axvline(x[landau_cutoff_srs], ls = '--', c=epw_colour, label = r'SRS Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
+        # # Plot landau cutoff k_epw lambda_D ~ 0.3
+        # landau_cutoff_srs = srs.landau_cutoff_index(self.T_e, n_e, self.lambda_0, theta, cutoff = 0.3)
+        # if landau_cutoff_srs is not None:
+        #     ax.axvline(x[landau_cutoff_srs], ls = '--', c=epw_colour, label = r'SRS Landau Cutoff ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
