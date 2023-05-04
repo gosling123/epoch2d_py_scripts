@@ -139,7 +139,7 @@ class data:
         # Get required files to read
         self.get_file_range(t_min, t_max)
         # Set momentum bins for histogram
-        E_bins_edges = np.linspace(0.0 * keV_to_J, 800 * keV_to_J, nbins)
+        E_bins_edges = np.linspace(0.0 * keV_to_J, 2500 * keV_to_J, nbins)
         self.E_bins_centre = 0.5 * (E_bins_edges[1:] + E_bins_edges[:-1])
 
         # Find distribution from each time segment and sum to get full distribution

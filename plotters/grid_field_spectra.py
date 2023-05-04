@@ -169,6 +169,8 @@ class plots():
         plt.ylabel(r'$c k_y / \omega_0$')
         plt.ylim(k_y.min(), k_y.max())
         plt.xlim(k_x.min(), k_x.max())
+
+        # If wanting to plot polar grid lines
         
         # x = np.linspace(-1, 1, 1000)
         # angles = np.linspace(0, np.pi, 6)

@@ -75,9 +75,9 @@ class data:
         d = sdf.read(self.files[-1])
         # End time of simulation
         self.t_end = d.__dict__['Header']['time']
-        
         # Define grid varibales
         var = d.__dict__[self.field_name]
+        
 
         # Number of grid cells
         self.N_x = var.dims[0]
@@ -265,7 +265,7 @@ class data:
             # FFT in each time window
             field_fourier.append(fourier_space_av[k_indicies])
             # x_data.append(self.X_centres[i*x_hop])
-            x_data.append(self.X_centres[i*x_hop+x_window//2])
+            x_data.append(self.X_centres[i*x_hop])
 
         # Use numpy arrays for plots
         self.field_fourier = np.array(field_fourier)

@@ -81,9 +81,14 @@ class plots:
 
         # Get frequencies
         omega1, omega2 = tpd.tpd_omegas(n_e, self.T_e, theta, self.lambda_0)
+
         # Plot
         ax.plot(x, omega1, c=plot_colour)
-        ax.plot(x, omega2, c=plot_colour, label = r'TPD EPW ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
+        if theta == 'max_lin_growth':
+            ax.plot(x, omega2, c=plot_colour, label = r'TPD EPW ($\theta = \theta_{MLG}$')
+        else:
+            ax.plot(x, omega2, c=plot_colour, label = r'TPD EPW ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
+
     
     ########################################################################################################################
     # omega range 
@@ -121,10 +126,10 @@ class plots:
         # Plots bounds to get idea of range of frequcies relating to scattered EPW's due to TPD
         if axis == 'x':
             ax.axvline(omega_min.min(), c=plot_colour)
-            ax.axvline(omega_max.max(), c=plot_colour, label = f'TPD EPW ({n_min}-{n_max}' + r' $n_{cr}$)')
+            ax.axvline(omega_max.max(), c=plot_colour, label = f'TPD ({n_min}-{n_max}' + r' $n_{cr}$)')
         elif axis == 'y':
             ax.axhline(omega_min.min(), c=plot_colour)
-            ax.axhline(omega_max.max(), c=plot_colour, label = f'TPD EPW ({n_min}-{n_max}' + r' $n_{cr}$)')
+            ax.axhline(omega_max.max(), c=plot_colour, label = f'TPD ({n_min}-{n_max}' + r' $n_{cr}$)')
 
     ########################################################################################################################
     # kx vs ky

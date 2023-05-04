@@ -29,7 +29,7 @@ from plotters import tpd_plots as tpd
 import get_data.accumulator_field_spectra as field_spectra
 
 # Colour map style
-cmap = cm.viridis
+cmap = cm.jet
 
 # Useful prefix's
 pico = 1e-12
@@ -334,7 +334,7 @@ class plots():
     
         # Log norm cbar scaling
         vmax = field_fourier.max()
-        vmin = vmax*1e-5
+        vmin = vmax*1e-4
 
         # Plot image
         fft_plot = ax.imshow(field_fourier.T, cmap=cmap, norm = LogNorm(vmin=vmin, vmax=vmax), interpolation='gaussian', \
@@ -376,8 +376,9 @@ class plots():
             plots.x_vs_omega(n_e=n_e, theta=tpd_angle, x=X/micron, ax=plt.gca())
 
         # Plot electron plasma-frequency
-        omega_pe = plasma.electron_plasma_freq(n_e, self.lambda_0, self.v_th, relativistic = True)
-        ax.plot(X/micron, omega_pe, c='blue', ls ='--', label = r'$\omega_{pe}$')
+        omega_pe = plasma.electron_plasma_freq(n_e, self.lambda_0, self.v_th, relativistic = False)
+        omega_0 = laser.omega(self.lambda_0)
+        ax.plot(X/micron, omega_pe/omega_0, c='black', ls ='--', label = r'$\omega_{pe}$')
 
         plt.legend()
         # Add density scale on top x axis
@@ -597,7 +598,6 @@ class plots():
             print('Plotting SRS bounds')
             # SRS plotting class
             plots = srs.plots(self.T_e, self.lambda_0)
-            #plots.omega_EM(axis='y', n_min=n_srs[0], n_max=n_srs[1], ax=plt.gca())
             plots.omega_EPW(axis='y', n_min=n_srs[0], n_max=n_srs[1], ax=plt.gca())
               
         if plot_tpd:
@@ -606,7 +606,7 @@ class plots():
             plots = tpd.plots(self.T_e, self.lambda_0)
             plots.omega(axis='x', n_min=n_tpd[0], n_max=n_tpd[1], ax=plt.gca())
 
-        plt.legend()
+        plt.legend(loc='upper right')
         # Save figure
         time_min = np.round(time_data.min(), 2)
         time_max = np.round(time_data.max(), 2)
@@ -623,3 +623,6 @@ class plots():
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         output_file.write(f'\nSaved omega_vs_time/{plot_name} at {dt_string}')
         output_file.close()
+
+    
+    

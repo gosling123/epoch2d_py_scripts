@@ -39,7 +39,7 @@ keV_to_K = (const.e*1e3)/const.k
 ################################################################################
 
 # Location of data files
-path = "../../shared/run0"
+path = "../half_omega"
 
 # Path for picture outputs to go
 output_path = '../Plots'
@@ -48,7 +48,7 @@ output_path = '../Plots'
 sdf_prefix = "probes"
 
 # Flag for which probe to use
-probe_flag = "conv_e_probe_"
+probe_flag = "y_upper_probe"
 
 #outgoing_e_probe_ & conv_e_probe_ (for run0)
 
@@ -62,10 +62,10 @@ files = np.array(sorted(glob.glob(fnames)))
 ################################################################################
 
 # Laser Wavelength (units : m)
-lambda_0 = 0.351e-6
+lambda_0 = 1.314e-6
 
 # Electron Temperature (units : keV)
-T_e_keV = 4.5
+T_e_keV = 4.3
 # Eectron Temperature (units : K)
 T_e_K = T_e_keV * keV_to_K
 
@@ -94,19 +94,21 @@ if p_distribution:
     # Minimum time/times to plot (units : s)
     t_min = 0.0 * pico
     # Maximum time/times to plot (units : s)
-    t_max = 15 * pico 
+    t_max = 9 * pico 
     # Momentum componant/s to use,  options 'x', 'y', 'z', 'xy', 'xz', 'yz' 'xyz'
-    componants = 'x'
+    componants = 'xyz'
     # Minimum momentum to plot (units : p_th = m_e*v_th)
-    p_min = 6.0 
+    p_min = 4.0 
     # Maximum momentum to plot (units : p_th = m_e*v_th)
     p_max = 25
     # Number of discrete bins to plot
-    nbins = 100
+    nbins = 1000
+    # Plot Maxwellian Fits
+    maxwell_plot = True
 
     print('---------------------------------------------------------------')
     print(f'Plotting outgoing momentum distribution for {t_min / pico} - {t_max /pico} ps')
-    plots.plot_p_dist(t_min, t_max, componants, p_min, p_max, nbins)
+    plots.plot_p_dist(t_min, t_max, componants, p_min, p_max, nbins, maxwell_plot)
 
 
 ########################################################################################################################
@@ -118,18 +120,20 @@ E_distribution = True
 if E_distribution:
 
     # Minimum time/times to plot (units : s)
-    t_min = 0 * pico
+    t_min = 0.0 * pico
     # Maximum time/times to plot (units : s)
-    t_max = 25 * pico 
+    t_max = 15.0 * pico 
     # Weight distribution function by E 
     weighted = True
     # Minimum energy to plot (units : keV)
-    E_min = 25
+    E_min = 30
     # Maximum momentum to plot (units : keV)
-    E_max = 200
+    E_max = 2500
     # Number of discrete bins to plot
     nbins = 1000
+    # Plot Maxwellian Fits
+    maxwell_plot = True
 
     print('---------------------------------------------------------------')
     print(f'Plotting outgoing energy distribution for {t_min / pico} - {t_max /pico} ps')
-    plots.plot_E_dist(t_min, t_max, E_min, E_max, nbins, weighted)
+    plots.plot_E_dist(t_min, t_max, E_min, E_max, nbins, weighted, maxwell_plot)

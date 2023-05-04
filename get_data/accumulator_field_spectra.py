@@ -427,3 +427,7 @@ class data:
         # Use numpy arrays for plots
         self.field_fourier = np.array(field_fourier)
         self.time_data = np.array(time_data)
+
+        np.save('Bz_field_fourier.npy', self.field_fourier)
+        np.save('time.npy', self.time_data)
+        np.save('omega_space,npy', self.omega_space)

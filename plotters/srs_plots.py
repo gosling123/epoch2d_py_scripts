@@ -125,6 +125,7 @@ class plots:
         # Plot
         ax.plot(x, omega_em, c=em_colour, label = r'SRS EM ($\theta$ =' + f'{np.round(theta, 1)}\N{DEGREE SIGN})')
 
+    
     ########################################################################################################################
     # omega range 
     ########################################################################################################################
@@ -198,10 +199,10 @@ class plots:
         # Plots bounds to get idea of range of frequcies relating to scattered EPW waves due to SRS
         if axis == 'x':
             ax.axhline(omega_min.min(), c=epw_colour)
-            ax.axhline(omega_max.max(), c=epw_colour, label = f'SRS EPW ({np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$)')
+            ax.axhline(omega_max.max(), c=epw_colour, label = f'SRS ({np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$)')
         elif axis == 'y':
             ax.axvline(omega_min.min(), c=epw_colour)
-            ax.axvline(omega_max.max(), c=epw_colour, label = f'SRS EPW ({np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$)')
+            ax.axvline(omega_max.max(), c=epw_colour, label = f'SRS ({np.round(n_min,2)}-{np.round(n_max,2)}' + r' $n_{cr}$)')
 
 
     ########################################################################################################################
